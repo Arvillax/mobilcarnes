@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "975108417852",
+    "project_id": "acceso-3cee5",
+    "storage_bucket": "acceso-3cee5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975108417852:android:1260b12dbceeab58da5639",
+        "android_client_info": {
+          "package_name": "com.example.fblogin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "975108417852-qe5e3tfreo4r7dq0if6jrns6ndkjek5a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB91q4r4vZs5uLsmG4pL-QkMGt6s1FhMEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "975108417852-qe5e3tfreo4r7dq0if6jrns6ndkjek5a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
