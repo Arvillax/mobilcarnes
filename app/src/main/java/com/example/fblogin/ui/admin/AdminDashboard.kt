@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Dashboard del Admin - muestra resumen y opciones de gestión
+// dashboard admin
 @Composable
 fun AdminDashboard(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -27,28 +27,28 @@ fun AdminDashboard(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Estadísticas mock (en real vendrían de Firestore)
+        // estadisticas
         Text("Total Usuarios: 25")
         Text("Total Productos: 15")
         Text("Ventas del mes: $12,500")
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para gestionar usuarios
+        // boton usuarios
         Button(onClick = { nav.navigate("admin/users") }) {
             Text("Gestionar Usuarios")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón para gestionar productos
+        // boton productos
         Button(onClick = { nav.navigate("admin/products") }) {
             Text("Gestionar Productos")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón de logout - limpia sesión y vuelve al login
+        // logout
         Button(onClick = { vm.logout(); nav.navigate("login") { popUpTo(0) { inclusive = true } } }) {
             Text("Cerrar sesión")
         }

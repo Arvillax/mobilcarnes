@@ -18,21 +18,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Modelo de items del carrito
+// modelo carrito
 data class CarritoItem(val nombre: String, val cantidad: Double, val precioKg: Double)
 
-// Lista mock del carrito (en real se guardaría en Firestore o local)
+// datos mock
 val carritoMock = listOf(
     CarritoItem("Costillas de Res", 2.0, 85.0),
     CarritoItem("Pechuga de Pollo", 1.5, 45.0),
     CarritoItem("Lomo de Cerdo", 1.0, 75.0)
 )
 
-// Pantalla del carrito - muestra productos seleccionados y total
+// pantalla carrito
 @Composable
 fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
 
-    // Calcular total del carrito
+    // total
     val total = carritoMock.sumOf { it.cantidad * it.precioKg }
 
     Column(
@@ -44,14 +44,14 @@ fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para volver
+        // boton volver
         Button(onClick = { nav.popBackStack() }) {
             Text("← Volver al catálogo")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de items en el carrito
+        // lista
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(carritoMock) { item ->
                 Card(
@@ -60,12 +60,12 @@ fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
                         .padding(8.dp)
                 ) {
                     Row(modifier = Modifier.padding(16.dp)) {
-                        // Info del item
+                        // info
                         Column(modifier = Modifier.weight(1f)) {
                             Text(item.nombre)
                             Text("${item.cantidad} kg x $${item.precioKg}/kg")
                         }
-                        // Subtotal del item
+                        // subtotal
                         Text("$${item.cantidad * item.precioKg}")
                     }
                 }
@@ -74,13 +74,13 @@ fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Total a pagar
+        // total
         Text("Total: $${total}")
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón para comprar (mock)
-        Button(onClick = { /* Realizar compra */ }) {
+        // comprar
+        Button(onClick = { }) {
             Text("Comprar")
         }
     }

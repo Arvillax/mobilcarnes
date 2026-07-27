@@ -18,10 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Modelo de datos para usuarios
+// modelo usuario
 data class Usuario(val id: String, val nombre: String, val email: String, val rol: String)
 
-// Lista mock de usuarios (en real vendría de Firestore)
+// datos mock
 val usuariosMock = listOf(
     Usuario("1", "Juan Admin", "admin@carne.com", "ADMIN"),
     Usuario("2", "Maria Gestor", "gestor@carne.com", "GESTOR"),
@@ -30,7 +30,7 @@ val usuariosMock = listOf(
     Usuario("5", "Pedro Gestor", "pedro@carne.com", "GESTOR")
 )
 
-// Pantalla de gestión de usuarios - lista y CRUD
+// pantalla usuarios
 @Composable
 fun AdminUsersScreen(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -42,14 +42,14 @@ fun AdminUsersScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para volver al dashboard
+        // boton volver
         Button(onClick = { nav.popBackStack() }) {
             Text("← Volver")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de usuarios con LazyColumn (renderizado eficiente)
+        // lista
         LazyColumn {
             items(usuariosMock) { usuario ->
                 Card(
@@ -58,14 +58,14 @@ fun AdminUsersScreen(nav: NavController, vm: AuthViewModel) {
                         .padding(8.dp)
                 ) {
                     Row(modifier = Modifier.padding(16.dp)) {
-                        // Info del usuario
+                        // info
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Nombre: ${usuario.nombre}")
                             Text("Email: ${usuario.email}")
                             Text("Rol: ${usuario.rol}")
                         }
-                        // Botón de editar (mock)
-                        Button(onClick = { /* Editar */ }) {
+                        // editar
+                        Button(onClick = { }) {
                             Text("Editar")
                         }
                     }

@@ -20,7 +20,7 @@ import androidx.navigation.NavController
 import com.example.fblogin.ui.admin.productosMock
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Pantalla del catálogo - muestra todos los productos disponibles
+// pantalla catalogo
 @Composable
 fun CatalogoScreen(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -33,35 +33,35 @@ fun CatalogoScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para ver carrito
+        // boton carrito
         Button(onClick = { nav.navigate("cliente/carrito") }) {
             Text("🛒 Ver Carrito")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón para ver historial
+        // boton historial
         Button(onClick = { nav.navigate("cliente/historial") }) {
             Text("📋 Mi Historial")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón de logout
+        // logout
         Button(onClick = { vm.logout(); nav.navigate("login") { popUpTo(0) { inclusive = true } } }) {
             Text("Cerrar sesión")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de productos - cada uno es clickeable
+        // lista
         LazyColumn {
             items(productosMock) { producto ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .clickable { nav.navigate("cliente/detalle/${producto.id}") } // Navegar al detalle
+                        .clickable { nav.navigate("cliente/detalle/${producto.id}") }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(producto.nombre)

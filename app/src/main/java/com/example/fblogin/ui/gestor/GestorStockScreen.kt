@@ -19,7 +19,7 @@ import androidx.navigation.NavController
 import com.example.fblogin.ui.admin.productosMock
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Pantalla de gestión de stock - permite actualizar cantidades
+// pantalla stock
 @Composable
 fun GestorStockScreen(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -31,14 +31,14 @@ fun GestorStockScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para volver
+        // boton volver
         Button(onClick = { nav.popBackStack() }) {
             Text("← Volver")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de productos con su stock actual
+        // lista
         LazyColumn {
             items(productosMock) { producto ->
                 Card(
@@ -47,14 +47,14 @@ fun GestorStockScreen(nav: NavController, vm: AuthViewModel) {
                         .padding(8.dp)
                 ) {
                     Row(modifier = Modifier.padding(16.dp)) {
-                        // Info del stock
+                        // info
                         Column(modifier = Modifier.weight(1f)) {
                             Text("${producto.nombre}")
                             Text("Stock actual: ${producto.stock} kg")
                             Text("Precio: $${producto.precioKg}/kg")
                         }
-                        // Botón para actualizar stock (mock)
-                        Button(onClick = { /* Actualizar stock */ }) {
+                        // actualizar
+                        Button(onClick = { }) {
                             Text("Actualizar")
                         }
                     }

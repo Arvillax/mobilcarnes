@@ -18,10 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Modelo de datos para productos de carne
+// modelo producto
 data class Producto(val id: String, val nombre: String, val precioKg: Double, val stock: Int, val descripcion: String)
 
-// Lista mock de productos (en real vendría de Firestore)
+// datos mock
 val productosMock = listOf(
     Producto("1", "Costillas de Res", 85.0, 50, "Costillas frescas de res premium"),
     Producto("2", "Pechuga de Pollo", 45.0, 100, "Pechuga de pollo sin hueso"),
@@ -31,7 +31,7 @@ val productosMock = listOf(
     Producto("6", "Punta de Anca", 95.0, 25, "Punta de anca argentina")
 )
 
-// Pantalla de gestión de productos - lista y CRUD
+// pantalla productos
 @Composable
 fun AdminProductsScreen(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -43,14 +43,14 @@ fun AdminProductsScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para volver
+        // boton volver
         Button(onClick = { nav.popBackStack() }) {
             Text("← Volver")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de productos
+        // lista
         LazyColumn {
             items(productosMock) { producto ->
                 Card(
@@ -59,15 +59,15 @@ fun AdminProductsScreen(nav: NavController, vm: AuthViewModel) {
                         .padding(8.dp)
                 ) {
                     Row(modifier = Modifier.padding(16.dp)) {
-                        // Info del producto
+                        // info
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Nombre: ${producto.nombre}")
                             Text("Precio/kg: $${producto.precioKg}")
                             Text("Stock: ${producto.stock} kg")
                             Text("Descripción: ${producto.descripcion}")
                         }
-                        // Botón de editar (mock)
-                        Button(onClick = { /* Editar */ }) {
+                        // editar
+                        Button(onClick = { }) {
                             Text("Editar")
                         }
                     }

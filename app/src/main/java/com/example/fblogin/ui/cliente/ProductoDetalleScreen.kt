@@ -15,11 +15,11 @@ import androidx.navigation.NavController
 import com.example.fblogin.ui.admin.productosMock
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Pantalla de detalle del producto - muestra info completa y opción de comprar
+// pantalla detalle
 @Composable
 fun ProductoDetalleScreen(nav: NavController, vm: AuthViewModel, productoId: String) {
 
-    // Buscar producto por ID (en real sería una consulta a Firestore)
+    // buscar producto
     val producto = productosMock.find { it.id == productoId }
 
     Column(
@@ -28,7 +28,7 @@ fun ProductoDetalleScreen(nav: NavController, vm: AuthViewModel, productoId: Str
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Botón para volver al catálogo
+        // boton volver
         Button(onClick = { nav.popBackStack() }) {
             Text("← Volver al catálogo")
         }
@@ -36,7 +36,7 @@ fun ProductoDetalleScreen(nav: NavController, vm: AuthViewModel, productoId: Str
         Spacer(modifier = Modifier.height(16.dp))
 
         if (producto != null) {
-            // Mostrar info del producto
+            // info
             Text(producto.nombre, style = androidx.compose.material3.MaterialTheme.typography.headlineMedium)
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -51,12 +51,12 @@ fun ProductoDetalleScreen(nav: NavController, vm: AuthViewModel, productoId: Str
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón para agregar al carrito (mock)
-            Button(onClick = { /* Agregar al carrito */ }) {
+            // agregar al carrito
+            Button(onClick = { }) {
                 Text("Agregar al carrito")
             }
         } else {
-            // Si no se encontró el producto
+            // no encontrado
             Text("Producto no encontrado")
         }
     }

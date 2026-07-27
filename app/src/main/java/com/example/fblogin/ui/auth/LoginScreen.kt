@@ -20,19 +20,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Pantalla de Login - permite al usuario autenticarse
+// pantalla de login
 @Composable
 fun LoginScreen(nav: NavController, vm: AuthViewModel) {
 
-    // Estados locales para los campos de texto
+    // campos
     var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
 
-    // Observar estado del ViewModel
+    // observar estado
     val state by vm.state.collectAsState()
     val role by vm.role.collectAsState()
 
-    // Layout principal
+    // layout
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,26 +41,26 @@ fun LoginScreen(nav: NavController, vm: AuthViewModel) {
     ) {
         Text("Login - Tienda de Carne")
 
-        // Campo de email
+        // campo email
         OutlinedTextField(email, { email = it }, label = { Text("Email") })
 
-        // Campo de password
+        // campo password
         OutlinedTextField(pass, { pass = it }, label = { Text("Password") })
 
-        // Botón de login - llama a la función del ViewModel
+        // boton login
         Button(onClick = { vm.login(email, pass) }) {
             Text("Entrar")
         }
 
-        // Link para ir a registro
+        // link registro
         TextButton(onClick = { nav.navigate("register") }) {
             Text("Ir a registro")
         }
 
-        // Mostrar mensaje de estado (error o éxito)
+        // alerta
         Text(state)
 
-        // Si login fue exitoso, navegar según el rol
+        // validacion
         if (state == "SUCCESS") {
             LaunchedEffect(Unit) {
                 val route = when (role) {

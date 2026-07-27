@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Modelo de datos para ventas
+// modelo venta
 data class Venta(val id: String, val fecha: String, val total: Double, val cliente: String, val productos: String)
 
-// Lista mock de ventas del día (en real vendría de Firestore)
+// datos mock
 val ventasMock = listOf(
     Venta("1", "27/07/2026 10:30", 450.0, "Carlos Cliente", "Costillas x2kg, Pollo x1kg"),
     Venta("2", "27/07/2026 11:15", 280.0, "Ana Cliente", "Lomo x2kg, Chuletas x0.5kg"),
@@ -29,7 +29,7 @@ val ventasMock = listOf(
     Venta("5", "27/07/2026 16:30", 350.0, "Maria Gestor", "Lomo x3kg, Pollo x2kg")
 )
 
-// Pantalla de ventas del día - lista de transacciones
+// pantalla ventas
 @Composable
 fun GestorVentasScreen(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -41,19 +41,19 @@ fun GestorVentasScreen(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para volver
+        // boton volver
         Button(onClick = { nav.popBackStack() }) {
             Text("← Volver")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Total de ventas del día (mock)
+        // total
         Text("Total ventas: $1,790")
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Lista de ventas
+        // lista
         LazyColumn {
             items(ventasMock) { venta ->
                 Card(

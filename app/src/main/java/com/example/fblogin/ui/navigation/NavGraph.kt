@@ -20,23 +20,23 @@ import com.example.fblogin.ui.gestor.GestorStockScreen
 import com.example.fblogin.ui.gestor.GestorVentasScreen
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Navegación principal - define todas las rutas de la app
+// navegacion principal
 @Composable
 fun NavGraph(viewModel: AuthViewModel) {
 
-    // Controlador de navegación
+    // controlador
     val navController = rememberNavController()
 
-    // Observar estado de login y rol
+    // observar estado
     val logged by viewModel.logged.collectAsState()
     val role by viewModel.role.collectAsState()
 
-    // Definir todas las rutas disponibles
+    // rutas
     NavHost(
         navController = navController,
-        startDestination = "login" // Pantalla inicial
+        startDestination = "login"
     ) {
-        // === RUTAS DE AUTENTICACIÓN ===
+        // auth
         composable("login") {
             LoginScreen(navController, viewModel)
         }
@@ -44,7 +44,7 @@ fun NavGraph(viewModel: AuthViewModel) {
             RegisterScreen(navController, viewModel)
         }
 
-        // === RUTAS DE ADMIN ===
+        // admin
         composable("admin/dashboard") {
             AdminDashboard(navController, viewModel)
         }
@@ -55,7 +55,7 @@ fun NavGraph(viewModel: AuthViewModel) {
             AdminProductsScreen(navController, viewModel)
         }
 
-        // === RUTAS DE GESTOR ===
+        // gestor
         composable("gestor/dashboard") {
             GestorDashboard(navController, viewModel)
         }
@@ -66,11 +66,10 @@ fun NavGraph(viewModel: AuthViewModel) {
             GestorVentasScreen(navController, viewModel)
         }
 
-        // === RUTAS DE CLIENTE ===
+        // cliente
         composable("cliente/catalogo") {
             CatalogoScreen(navController, viewModel)
         }
-        // Ruta con parámetro - recibe el ID del producto
         composable("cliente/detalle/{productoId}") { backStackEntry ->
             val productoId = backStackEntry.arguments?.getString("productoId") ?: ""
             ProductoDetalleScreen(navController, viewModel, productoId)

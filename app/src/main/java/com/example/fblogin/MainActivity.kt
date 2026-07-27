@@ -7,21 +7,21 @@ import androidx.activity.enableEdgeToEdge
 import com.example.fblogin.ui.navigation.NavGraph
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Activity principal - punto de entrada de la app
+// activity principal
 class MainActivity : ComponentActivity() {
 
-    // ViewModel de autenticación (se comparte entre todas las pantallas)
+    // viewModel
     private val viewModel = AuthViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Habilitar modo edge-to-edge (pantalla completa)
+        // modo edge-to-edge
         enableEdgeToEdge()
 
-        // Establecer el contenido con Compose
+        // contenido
         setContent {
-            NavGraph(viewModel) // Iniciar navegación
+            NavGraph(viewModel)
         }
     }
 }

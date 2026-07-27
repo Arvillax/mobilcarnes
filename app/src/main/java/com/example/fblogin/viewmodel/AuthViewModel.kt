@@ -5,38 +5,38 @@ import com.example.fblogin.data.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-// Roles disponibles en el sistema
+// roles
 enum class UserRole {
-    ADMIN,   // Administrador total
-    GESTOR,  // Gestor de stock y ventas
-    CLIENTE  // Cliente que compra
+    ADMIN,   // administrador
+    GESTOR,  // gestor
+    CLIENTE  // cliente
 }
 
-// ViewModel de autenticación - conecta la UI con la lógica de login
+// viewmodel de autenticacion
 class AuthViewModel : ViewModel() {
 
-    // Instancia del repositorio
+    // repositorio
     private val repo = AuthRepository()
 
-    // Estado del mensaje (éxito, error, etc.)
+    // estado del mensaje
     private val _state = MutableStateFlow("")
     val state: StateFlow<String> = _state
 
-    // Estado de login (true = logueado)
+    // estado de login
     private val _logged = MutableStateFlow(repo.isLogged())
     val logged: StateFlow<Boolean> = _logged
 
-    // Estado del rol del usuario actual
+    // estado del rol
     private val _role = MutableStateFlow(UserRole.CLIENTE)
     val role: StateFlow<UserRole> = _role
 
-    // Función de login - valida credenciales con Firebase
+    // login
     fun login(email: String, password: String) {
         repo.login(email, password) { success, error ->
             if (success) {
                 _logged.value = true
                 _state.value = "SUCCESS"
-                // Mock: asignar rol según contenido del email
+                // asignar rol
                 _role.value = when {
                     email.contains("admin") -> UserRole.ADMIN
                     email.contains("gestor") -> UserRole.GESTOR
@@ -48,13 +48,13 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Función de registro - crea nueva cuenta
+    // registro
     fun register(email: String, password: String) {
         repo.register(email, password) { success, error ->
             if (success) {
                 _logged.value = true
                 _state.value = "SUCCESS"
-                // Mock: asignar rol según contenido del email
+                // asignar rol
                 _role.value = when {
                     email.contains("admin") -> UserRole.ADMIN
                     email.contains("gestor") -> UserRole.GESTOR
@@ -66,7 +66,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Cerrar sesión - limpia todos los estados
+    // cerrar sesion
     fun logout() {
         repo.logout()
         _logged.value = false

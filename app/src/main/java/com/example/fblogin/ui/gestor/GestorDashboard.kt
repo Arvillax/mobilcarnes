@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Dashboard del Gestor - resumen de operaciones diarias
+// dashboard gestor
 @Composable
 fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
     Column(
@@ -27,28 +27,28 @@ fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Estadísticas del día (mock)
+        // estadisticas
         Text("Ventas hoy: $3,200")
         Text("Stock bajo: 3 productos")
         Text("Pedidos pendientes: 5")
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón para gestionar stock
+        // boton stock
         Button(onClick = { nav.navigate("gestor/stock") }) {
             Text("Gestionar Stock")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón para ver ventas
+        // boton ventas
         Button(onClick = { nav.navigate("gestor/ventas") }) {
             Text("Ver Ventas")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Botón de logout
+        // logout
         Button(onClick = { vm.logout(); nav.navigate("login") { popUpTo(0) { inclusive = true } } }) {
             Text("Cerrar sesión")
         }

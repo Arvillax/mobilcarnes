@@ -14,19 +14,19 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
-// Pantalla de Registro - permite crear nueva cuenta
+// Pantalla de Registro
 @Composable
 fun RegisterScreen(nav: NavController, vm: AuthViewModel) {
 
-    // Estados locales para los campos
+    // campos
     var email by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
 
-    // Observar estado del ViewModel
+    // observar estado del ViewModel
     val state by vm.state.collectAsState()
     val role by vm.role.collectAsState()
 
-    // Layout del registro
+    // registro
     Column {
         Text("Registro - Tienda de Carne")
 
@@ -41,10 +41,10 @@ fun RegisterScreen(nav: NavController, vm: AuthViewModel) {
             Text("Crear cuenta")
         }
 
-        // Mostrar mensaje de estado
+        // alerta
         Text(state)
 
-        // Si registro fue exitoso, navegar según el rol
+        // validacion
         if (state == "SUCCESS") {
             LaunchedEffect(Unit) {
                 val route = when (role) {
