@@ -1,18 +1,39 @@
 package com.example.fblogin.ui.gestor
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
+
+private val Vino = Color(0xFF610000)
+private val Carmesi = Color(0xFF9C0720)
+private val Crimson = Color(0xFFDC143C)
+private val Rosa = Color(0xFFFF9EA2)
+private val White = Color(0xFFFFFFFF)
+private val GrayLight = Color(0xFFF5F5F5)
 
 // dashboard gestor
 @Composable
@@ -20,37 +41,139 @@ fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(White)
     ) {
-        Text("Gestor Dashboard")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // estadisticas
-        Text("Ventas hoy: $3,200")
-        Text("Stock bajo: 3 productos")
-        Text("Pedidos pendientes: 5")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // boton stock
-        Button(onClick = { nav.navigate("gestor/stock") }) {
-            Text("Gestionar Stock")
+        // header gradiente
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(Vino, Carmesi)
+                    )
+                )
+                .padding(horizontal = 24.dp, vertical = 32.dp)
+        ) {
+            Text(
+                text = "Gestor",
+                style = MaterialTheme.typography.headlineLarge,
+                color = White,
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // cards estadisticas
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard(
+                    value = "$3,200",
+                    label = "Ventas hoy",
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    value = "3",
+                    label = "Stock bajo",
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    value = "5",
+                    label = "Pedidos",
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-        // boton ventas
-        Button(onClick = { nav.navigate("gestor/ventas") }) {
-            Text("Ver Ventas")
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // boton gestionar stock
+            OutlinedButton(
+                onClick = { nav.navigate("gestor/stock") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Carmesi
+                )
+            ) {
+                Text(
+                    text = "Gestionar Stock",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+
+            // boton ver ventas
+            OutlinedButton(
+                onClick = { nav.navigate("gestor/ventas") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Carmesi
+                )
+            ) {
+                Text(
+                    text = "Ver Ventas",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // cerrar sesion
+            TextButton(
+                onClick = {
+                    vm.logout()
+                    nav.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Cerrar sesión",
+                    color = Crimson,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // logout
-        Button(onClick = { vm.logout(); nav.navigate("login") { popUpTo(0) { inclusive = true } } }) {
-            Text("Cerrar sesión")
+// card estadistica
+@Composable
+private fun StatCard(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Rosa)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = Vino
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = Carmesi
+            )
         }
     }
 }

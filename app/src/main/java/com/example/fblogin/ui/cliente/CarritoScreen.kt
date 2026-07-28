@@ -1,5 +1,7 @@
 package com.example.fblogin.ui.cliente
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,12 +11,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
 
@@ -32,56 +44,96 @@ val carritoMock = listOf(
 @Composable
 fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
 
-    // total
     val total = carritoMock.sumOf { it.cantidad * it.precioKg }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("Mi Carrito")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // boton volver
-        Button(onClick = { nav.popBackStack() }) {
-            Text("← Volver al catálogo")
+    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        // header gradiente
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Brush.linearGradient(listOf(Vino, Carmesi)))
+                .padding(horizontal = 20.dp, vertical = 24.dp)
+        ) {
+            Text(
+                text = "Mi Carrito",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            // volver
+            OutlinedButton(
+                onClick = { nav.popBackStack() },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("← Volver", fontSize = 16.sp)
+            }
 
-        // lista
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(carritoMock) { item ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Row(modifier = Modifier.padding(16.dp)) {
-                        // info
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(item.nombre)
-                            Text("${item.cantidad} kg x $${item.precioKg}/kg")
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // lista items
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(carritoMock) { item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                        colors = CardDefaults.cardColors(containerColor = GrayLight),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(16.dp)) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = item.nombre,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "${item.cantidad} kg x $${item.precioKg}/kg",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                            }
+                            Text(
+                                text = "$${String.format("%.2f", item.cantidad * item.precioKg)}",
+                                color = Crimson,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-                        // subtotal
-                        Text("$${item.cantidad * item.precioKg}")
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // total
-        Text("Total: $${total}")
+            // total
+            Text(
+                text = "Total: $${String.format("%.2f", total)}",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Crimson,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        // comprar
-        Button(onClick = { }) {
-            Text("Comprar")
+            // comprar
+            Button(
+                onClick = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Carmesi),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Comprar", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
