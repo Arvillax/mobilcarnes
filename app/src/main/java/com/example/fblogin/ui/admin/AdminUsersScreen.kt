@@ -1,21 +1,42 @@
 package com.example.fblogin.ui.admin
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -24,15 +45,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fblogin.ui.theme.Vino
+import com.example.fblogin.ui.theme.Carmesi
+import com.example.fblogin.ui.theme.Crimson
+import com.example.fblogin.ui.theme.GrayLight
+import com.example.fblogin.ui.theme.Rosa
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.UsuariosViewModel
 
-// colores tienda carne
-private val Vino = Color(0xFF610000)
-private val Carmesi = Color(0xFF9C0720)
-private val Crimson = Color(0xFFDC143C)
-private val Rosa = Color(0xFFFF9EA2)
+// colores locales
 private val White = Color(0xFFFFFFFF)
-private val GrayLight = Color(0xFFF5F5F5)
+private val GreenAccent = Color(0xFF2E7D32)
 
 // modelo usuario
 data class Usuario(val id: String, val nombre: String, val email: String, val rol: String)
@@ -46,21 +69,32 @@ val usuariosMock = listOf(
     Usuario("5", "Pedro Gestor", "pedro@carne.com", "GESTOR")
 )
 
-// pantalla usuarios
+// roles disponibles
+private val rolesDisponibles = listOf("ADMIN", "GESTOR", "CLIENTE")
+
+// pantalla usuarios admin
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminUsersScreen(nav: NavController, vm: AuthViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(White)
-    ) {
+fun AdminUsersScreen(
+    nav: NavController,
+    vm: AuthViewModel,
+    usuariosVm: UsuariosViewModel
+) {
+    val usuarios by usuariosVm.usuariosFiltrados.collectAsState()
+    val busqueda by usuariosVm.busqueda.collectAsState()
+    val filtroRol by usuariosVm.filtroRol.collectAsState()
+
+    // estado dialogs
+    var mostrarDialogoAgregar by remember { mutableStateOf(false) }
+    var usuarioAEditar by remember { mutableStateOf<Usuario?>(null) }
+    var usuarioAEliminar by remember { mutableStateOf<Usuario?>(null) }
+
+    Column(modifier = Modifier.fillMaxSize().background(White)) {
         // header gradiente
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.linearGradient(listOf(Vino, Carmesi))
-                )
+                .background(Brush.linearGradient(listOf(Vino, Carmesi)))
                 .padding(horizontal = 24.dp, vertical = 32.dp)
         ) {
             Text(
@@ -74,76 +108,404 @@ fun AdminUsersScreen(nav: NavController, vm: AuthViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // boton volver
+            // volver
             OutlinedButton(
                 onClick = { nav.popBackStack() },
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(text = "← Volver")
+                Text("← Volver", fontSize = 16.sp)
             }
 
-            // lista usuarios
-            LazyColumn(
-                modifier = Modifier.padding(top = 12.dp)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // barra de busqueda
+            OutlinedTextField(
+                value = busqueda,
+                onValueChange = { usuariosVm.buscar(it) },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Buscar usuario...") },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Carmesi,
+                    unfocusedBorderColor = Color.LightGray
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // filtro por rol (chips)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(usuariosMock) { usuario ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = GrayLight)
-                    ) {
-                        Row(
+                FilterChip(
+                    selected = filtroRol == null,
+                    onClick = { usuariosVm.filtrarPorRol(null) },
+                    label = { Text("Todos", fontSize = 13.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Carmesi,
+                        selectedLabelColor = White
+                    )
+                )
+                FilterChip(
+                    selected = filtroRol == "ADMIN",
+                    onClick = { usuariosVm.filtrarPorRol("ADMIN") },
+                    label = { Text("Admin", fontSize = 13.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Carmesi,
+                        selectedLabelColor = White
+                    )
+                )
+                FilterChip(
+                    selected = filtroRol == "GESTOR",
+                    onClick = { usuariosVm.filtrarPorRol("GESTOR") },
+                    label = { Text("Gestor", fontSize = 13.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Carmesi,
+                        selectedLabelColor = White
+                    )
+                )
+                FilterChip(
+                    selected = filtroRol == "CLIENTE",
+                    onClick = { usuariosVm.filtrarPorRol("CLIENTE") },
+                    label = { Text("Cliente", fontSize = 13.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Carmesi,
+                        selectedLabelColor = White
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // lista de usuarios
+            if (usuarios.isEmpty()) {
+                Spacer(modifier = Modifier.height(40.dp))
+                Text(
+                    text = "No se encontraron usuarios",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(usuarios) { usuario ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(bottom = 10.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = GrayLight),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
-                            // info usuario
-                            Column(modifier = Modifier.weight(1f)) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                // nombre
                                 Text(
                                     text = usuario.nombre,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
                                 )
+
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                // email
                                 Text(
                                     text = usuario.email,
                                     fontSize = 13.sp,
                                     color = Color.Gray
                                 )
-                                // badge rol
-                                Text(
-                                    text = usuario.rol,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Crimson,
-                                    modifier = Modifier
-                                        .padding(top = 6.dp)
-                                        .background(
-                                            color = Rosa.copy(alpha = 0.25f),
-                                            shape = RoundedCornerShape(6.dp)
-                                        )
-                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                )
-                            }
 
-                            // boton editar
-                            OutlinedButton(
-                                onClick = { },
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text(
-                                    text = "Editar",
-                                    fontSize = 13.sp
-                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // rol badge + acciones
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // badge rol (clickeable para cambiar)
+                                    RolBadge(
+                                        rol = usuario.rol,
+                                        onCambiarRol = { nuevoRol ->
+                                            usuariosVm.cambiarRol(usuario.id, nuevoRol)
+                                        }
+                                    )
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    // boton editar
+                                    OutlinedButton(
+                                        onClick = { usuarioAEditar = usuario },
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Editar", fontSize = 13.sp)
+                                    }
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    // boton eliminar
+                                    IconButton(
+                                        onClick = { usuarioAEliminar = usuario }
+                                    ) {
+                                        Text(
+                                            "✕",
+                                            color = Crimson,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // boton agregar
+            OutlinedButton(
+                onClick = { mostrarDialogoAgregar = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = Carmesi
+                )
+            ) {
+                Text("+ Agregar usuario", fontWeight = FontWeight.SemiBold)
+            }
         }
     }
+
+    // ========== DIALOGO AGREGAR ==========
+    if (mostrarDialogoAgregar) {
+        DialogoUsuario(
+            titulo = "Agregar usuario",
+            nombreInicial = "",
+            emailInicial = "",
+            rolInicial = "CLIENTE",
+            onGuardar = { nombre, email, rol ->
+                usuariosVm.agregarUsuario(nombre, email, rol)
+                mostrarDialogoAgregar = false
+            },
+            onCancelar = { mostrarDialogoAgregar = false }
+        )
+    }
+
+    // ========== DIALOGO EDITAR ==========
+    usuarioAEditar?.let { usuario ->
+        DialogoUsuario(
+            titulo = "Editar usuario",
+            nombreInicial = usuario.nombre,
+            emailInicial = usuario.email,
+            rolInicial = usuario.rol,
+            onGuardar = { nombre, email, rol ->
+                usuariosVm.editarUsuario(usuario.id, nombre, email, rol)
+                usuarioAEditar = null
+            },
+            onCancelar = { usuarioAEditar = null }
+        )
+    }
+
+    // ========== DIALOGO ELIMINAR ==========
+    usuarioAEliminar?.let { usuario ->
+        AlertDialog(
+            onDismissRequest = { usuarioAEliminar = null },
+            title = { Text("Eliminar usuario", fontWeight = FontWeight.Bold) },
+            text = { Text("¿Eliminar a ${usuario.nombre}? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        usuariosVm.eliminarUsuario(usuario.id)
+                        usuarioAEliminar = null
+                    }
+                ) {
+                    Text("Eliminar", color = Crimson, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { usuarioAEliminar = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+}
+
+// ========== COMPONENTE: BADGE ROL CON DROPDOWN ==========
+@Composable
+private fun RolBadge(rol: String, onCambiarRol: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Text(
+            text = rol,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = when (rol) {
+                "ADMIN" -> Vino
+                "GESTOR" -> Carmesi
+                else -> Crimson
+            },
+            modifier = Modifier
+                .background(
+                    color = when (rol) {
+                        "ADMIN" -> Vino.copy(alpha = 0.15f)
+                        "GESTOR" -> Carmesi.copy(alpha = 0.15f)
+                        else -> Rosa.copy(alpha = 0.25f)
+                    },
+                    shape = RoundedCornerShape(6.dp)
+                )
+                .clickable { expanded = true }
+                .padding(horizontal = 8.dp, vertical = 2.dp)
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            rolesDisponibles.forEach { rolOpcion ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = rolOpcion,
+                            fontWeight = if (rolOpcion == rol) FontWeight.Bold else FontWeight.Normal
+                        )
+                    },
+                    onClick = {
+                        onCambiarRol(rolOpcion)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+// ========== COMPONENTE: DIALOGO AGREGAR/EDITAR ==========
+@Composable
+private fun DialogoUsuario(
+    titulo: String,
+    nombreInicial: String,
+    emailInicial: String,
+    rolInicial: String,
+    onGuardar: (String, String, String) -> Unit,
+    onCancelar: () -> Unit
+) {
+    var nombre by remember { mutableStateOf(nombreInicial) }
+    var email by remember { mutableStateOf(emailInicial) }
+    var rol by remember { mutableStateOf(rolInicial) }
+    var errorNombre by remember { mutableStateOf(false) }
+    var errorEmail by remember { mutableStateOf(false) }
+    var rolMenuExpanded by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onCancelar,
+        title = {
+            Text(titulo, fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column {
+                // nombre
+                OutlinedTextField(
+                    value = nombre,
+                    onValueChange = {
+                        nombre = it
+                        errorNombre = false
+                    },
+                    label = { Text("Nombre") },
+                    isError = errorNombre,
+                    supportingText = if (errorNombre) {
+                        { Text("Mínimo 2 caracteres") }
+                    } else null,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // email
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        errorEmail = false
+                    },
+                    label = { Text("Email") },
+                    isError = errorEmail,
+                    supportingText = if (errorEmail) {
+                        { Text("Email inválido") }
+                    } else null,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // selector de rol
+                Box {
+                    OutlinedTextField(
+                        value = rol,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Rol") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { rolMenuExpanded = true },
+                        shape = RoundedCornerShape(10.dp),
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = Color.Black,
+                            disabledBorderColor = Color.LightGray,
+                            disabledLabelColor = Color.Gray
+                        )
+                    )
+                    // overlay invisible para capturar clicks
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { rolMenuExpanded = true }
+                    )
+                    DropdownMenu(
+                        expanded = rolMenuExpanded,
+                        onDismissRequest = { rolMenuExpanded = false }
+                    ) {
+                        rolesDisponibles.forEach { rolOpcion ->
+                            DropdownMenuItem(
+                                text = { Text(rolOpcion) },
+                                onClick = {
+                                    rol = rolOpcion
+                                    rolMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    errorNombre = nombre.length < 2
+                    errorEmail = !email.contains("@") || !email.contains(".")
+                    if (!errorNombre && !errorEmail) {
+                        onGuardar(nombre, email, rol)
+                    }
+                }
+            ) {
+                Text("Guardar", color = Carmesi, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancelar) {
+                Text("Cancelar")
+            }
+        }
+    )
 }

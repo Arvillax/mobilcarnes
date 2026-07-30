@@ -18,25 +18,31 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.fblogin.ui.admin.modeloImagen
 import com.example.fblogin.ui.admin.productosMock
 import com.example.fblogin.ui.theme.Vino
 import com.example.fblogin.ui.theme.Carmesi
 import com.example.fblogin.ui.theme.Crimson
 import com.example.fblogin.viewmodel.AuthViewModel
 import com.example.fblogin.viewmodel.CarritoViewModel
+import com.example.fblogin.viewmodel.ProductosViewModel
 
 // pantalla detalle
 @Composable
@@ -44,10 +50,12 @@ fun ProductoDetalleScreen(
     nav: NavController,
     vm: AuthViewModel,
     productoId: String,
-    carritoViewModel: CarritoViewModel
+    carritoViewModel: CarritoViewModel,
+    productosVm: ProductosViewModel
 ) {
 
-    val producto = productosMock.find { it.id == productoId }
+    val productos by productosVm.productosFiltrados.collectAsState()
+    val producto = productos.find { it.id == productoId }
     var cantidad by remember { mutableStateOf(1.0) }
     var agregado by remember { mutableStateOf(false) }
 
@@ -87,6 +95,21 @@ fun ProductoDetalleScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (producto != null) {
+                // imagen del producto
+                val imgModel = modeloImagen(producto)
+                if (imgModel != null) {
+                    AsyncImage(
+                        model = imgModel,
+                        contentDescription = producto.nombre,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 Text(
                     text = producto.nombre,
                     style = MaterialTheme.typography.headlineMedium,

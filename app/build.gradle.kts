@@ -54,6 +54,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
 
     testImplementation(libs.junit)

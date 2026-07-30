@@ -23,6 +23,8 @@ import com.example.fblogin.ui.gestor.GestorStockScreen
 import com.example.fblogin.ui.gestor.GestorVentasScreen
 import com.example.fblogin.viewmodel.AuthViewModel
 import com.example.fblogin.viewmodel.CarritoViewModel
+import com.example.fblogin.viewmodel.ProductosViewModel
+import com.example.fblogin.viewmodel.UsuariosViewModel
 
 // navegacion principal
 @Composable
@@ -33,6 +35,12 @@ fun NavGraph(viewModel: AuthViewModel) {
 
     // viewmodel del carrito (compartido entre pantallas cliente)
     val carritoViewModel: CarritoViewModel = viewModel()
+
+    // viewmodel de usuarios (compartido para admin)
+    val usuariosViewModel: UsuariosViewModel = viewModel()
+
+    // viewmodel de productos (compartido)
+    val productosViewModel: ProductosViewModel = viewModel()
 
     // observar estado
     val logged by viewModel.logged.collectAsState()
@@ -56,10 +64,10 @@ fun NavGraph(viewModel: AuthViewModel) {
             AdminDashboard(navController, viewModel)
         }
         composable("admin/users") {
-            AdminUsersScreen(navController, viewModel)
+            AdminUsersScreen(navController, viewModel, usuariosViewModel)
         }
         composable("admin/products") {
-            AdminProductsScreen(navController, viewModel)
+            AdminProductsScreen(navController, viewModel, productosViewModel)
         }
         composable("admin/graficos") {
             AdminGraficosScreen(navController, viewModel)
@@ -70,7 +78,7 @@ fun NavGraph(viewModel: AuthViewModel) {
             GestorDashboard(navController, viewModel)
         }
         composable("gestor/stock") {
-            GestorStockScreen(navController, viewModel)
+            GestorStockScreen(navController, viewModel, productosViewModel)
         }
         composable("gestor/ventas") {
             GestorVentasScreen(navController, viewModel)
@@ -78,11 +86,11 @@ fun NavGraph(viewModel: AuthViewModel) {
 
         // cliente
         composable("cliente/catalogo") {
-            CatalogoScreen(navController, viewModel)
+            CatalogoScreen(navController, viewModel, productosViewModel)
         }
         composable("cliente/detalle/{productoId}") { backStackEntry ->
             val productoId = backStackEntry.arguments?.getString("productoId") ?: ""
-            ProductoDetalleScreen(navController, viewModel, productoId, carritoViewModel)
+            ProductoDetalleScreen(navController, viewModel, productoId, carritoViewModel, productosViewModel)
         }
         composable("cliente/carrito") {
             CarritoScreen(navController, viewModel, carritoViewModel)
