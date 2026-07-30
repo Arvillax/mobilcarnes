@@ -3,37 +3,53 @@ package com.example.fblogin.ui.cliente
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import com.example.fblogin.ui.theme.Vino
-import com.example.fblogin.ui.theme.Carmesi
-import com.example.fblogin.ui.theme.Crimson
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fblogin.ui.admin.productosMock
+import com.example.fblogin.ui.theme.Vino
+import com.example.fblogin.ui.theme.Carmesi
+import com.example.fblogin.ui.theme.Crimson
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.CarritoViewModel
 
 // pantalla detalle
 @Composable
-fun ProductoDetalleScreen(nav: NavController, vm: AuthViewModel, productoId: String) {
+fun ProductoDetalleScreen(
+    nav: NavController,
+    vm: AuthViewModel,
+    productoId: String,
+    carritoViewModel: CarritoViewModel
+) {
 
     val producto = productosMock.find { it.id == productoId }
+    var cantidad by remember { mutableStateOf(1.0) }
+    var agregado by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         // header gradiente
@@ -102,11 +118,89 @@ fun ProductoDetalleScreen(nav: NavController, vm: AuthViewModel, productoId: Str
                     color = Color.DarkGray
                 )
 
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // selector de cantidad
+                Text(
+                    text = "Cantidad (kg):",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // boton restar
+                    OutlinedButton(
+                        onClick = {
+                            if (cantidad > 1.0) {
+                                cantidad -= 1.0
+                                agregado = false
+                            }
+                        },
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("−", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // cantidad actual
+                    Text(
+                        text = "${String.format("%.0f", cantidad)} kg",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // boton sumar
+                    OutlinedButton(
+                        onClick = {
+                            if (cantidad < producto.stock) {
+                                cantidad += 1.0
+                                agregado = false
+                            }
+                        },
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("+", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // subtotal preview
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Subtotal: $${String.format("%.2f", cantidad * producto.precioKg)}",
+                    fontSize = 16.sp,
+                    color = Crimson,
+                    fontWeight = FontWeight.SemiBold
+                )
+
                 Spacer(modifier = Modifier.weight(1f))
+
+                // feedback
+                if (agregado) {
+                    Text(
+                        text = "✓ Agregado al carrito",
+                        color = Color(0xFF2E7D32),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
 
                 // agregar carrito
                 Button(
-                    onClick = { },
+                    onClick = {
+                        carritoViewModel.agregarProducto(producto, cantidad)
+                        agregado = true
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),

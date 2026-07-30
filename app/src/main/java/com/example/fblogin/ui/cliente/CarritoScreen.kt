@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import com.example.fblogin.ui.theme.Vino
-import com.example.fblogin.ui.theme.Carmesi
-import com.example.fblogin.ui.theme.Crimson
-import com.example.fblogin.ui.theme.GrayLight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +20,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -32,23 +33,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fblogin.ui.theme.Vino
+import com.example.fblogin.ui.theme.Carmesi
+import com.example.fblogin.ui.theme.Crimson
+import com.example.fblogin.ui.theme.GrayLight
 import com.example.fblogin.viewmodel.AuthViewModel
-
-// modelo carrito
-data class CarritoItem(val nombre: String, val cantidad: Double, val precioKg: Double)
-
-// datos mock
-val carritoMock = listOf(
-    CarritoItem("Costillas de Res", 2.0, 85.0),
-    CarritoItem("Pechuga de Pollo", 1.5, 45.0),
-    CarritoItem("Lomo de Cerdo", 1.0, 75.0)
-)
+import com.example.fblogin.viewmodel.CarritoViewModel
 
 // pantalla carrito
 @Composable
-fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
+fun CarritoScreen(
+    nav: NavController,
+    vm: AuthViewModel,
+    carritoViewModel: CarritoViewModel
+) {
 
-    val total = carritoMock.sumOf { it.cantidad * it.precioKg }
+    val items by carritoViewModel.items.collectAsState()
+    val total = carritoViewModel.total()
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         // header gradiente
@@ -78,37 +79,113 @@ fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // lista items
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(carritoMock) { item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        colors = CardDefaults.cardColors(containerColor = GrayLight),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Row(modifier = Modifier.padding(16.dp)) {
-                            Column(modifier = Modifier.weight(1f)) {
+            if (items.isEmpty()) {
+                // carrito vacio
+                Spacer(modifier = Modifier.height(40.dp))
+                Text(
+                    text = "Tu carrito está vacío",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            } else {
+                // lista items
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(items) { item ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                            colors = CardDefaults.cardColors(containerColor = GrayLight),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                // nombre y boton eliminar
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = item.producto.nombre,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    TextButton(
+                                        onClick = {
+                                            carritoViewModel.eliminarProducto(item.producto.id)
+                                        }
+                                    ) {
+                                        Text("✕", color = Crimson, fontSize = 16.sp)
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                // precio por kg
                                 Text(
-                                    text = item.nombre,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "${item.cantidad} kg x $${item.precioKg}/kg",
+                                    text = "$${item.producto.precioKg}/kg",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.Gray
                                 )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // selector de cantidad inline
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            val nueva = item.cantidad - 1.0
+                                            if (nueva >= 1.0) {
+                                                carritoViewModel.actualizarCantidad(
+                                                    item.producto, nueva
+                                                )
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("−", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Text(
+                                        text = "${String.format("%.1f", item.cantidad)} kg",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    OutlinedButton(
+                                        onClick = {
+                                            val nueva = item.cantidad + 1.0
+                                            if (nueva <= item.producto.stock) {
+                                                carritoViewModel.actualizarCantidad(
+                                                    item.producto, nueva
+                                                )
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("+", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    Spacer(modifier = Modifier.weight(1f))
+
+                                    // subtotal del item
+                                    Text(
+                                        text = "$${String.format("%.2f", item.cantidad * item.producto.precioKg)}",
+                                        color = Crimson,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
-                            Text(
-                                text = "$${String.format("%.2f", item.cantidad * item.precioKg)}",
-                                color = Crimson,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
                         }
                     }
                 }
@@ -129,12 +206,13 @@ fun CarritoScreen(nav: NavController, vm: AuthViewModel) {
 
             // comprar
             Button(
-                onClick = { },
+                onClick = { nav.navigate("cliente/factura") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Carmesi),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = items.isNotEmpty()
             ) {
                 Text("Comprar", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }

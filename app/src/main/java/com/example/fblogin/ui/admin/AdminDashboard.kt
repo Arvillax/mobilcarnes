@@ -128,6 +128,22 @@ fun AdminDashboard(nav: NavController, vm: AuthViewModel) {
                 )
             }
 
+            // boton ver reportes
+            Button(
+                onClick = { nav.navigate("admin/graficos") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Carmesi)
+            ) {
+                Text(
+                    text = "Ver Reportes",
+                    fontWeight = FontWeight.Bold,
+                    color = White
+                )
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             // logout

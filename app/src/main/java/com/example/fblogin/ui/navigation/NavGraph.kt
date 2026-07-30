@@ -3,10 +3,12 @@ package com.example.fblogin.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.fblogin.ui.admin.AdminDashboard
+import com.example.fblogin.ui.admin.AdminGraficosScreen
 import com.example.fblogin.ui.admin.AdminProductsScreen
 import com.example.fblogin.ui.admin.AdminUsersScreen
 import com.example.fblogin.ui.auth.LoginScreen
@@ -14,11 +16,13 @@ import com.example.fblogin.ui.auth.RegisterScreen
 import com.example.fblogin.ui.cliente.CarritoScreen
 import com.example.fblogin.ui.cliente.CatalogoScreen
 import com.example.fblogin.ui.cliente.ClienteHistorialScreen
+import com.example.fblogin.ui.cliente.FacturaScreen
 import com.example.fblogin.ui.cliente.ProductoDetalleScreen
 import com.example.fblogin.ui.gestor.GestorDashboard
 import com.example.fblogin.ui.gestor.GestorStockScreen
 import com.example.fblogin.ui.gestor.GestorVentasScreen
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.CarritoViewModel
 
 // navegacion principal
 @Composable
@@ -26,6 +30,9 @@ fun NavGraph(viewModel: AuthViewModel) {
 
     // controlador
     val navController = rememberNavController()
+
+    // viewmodel del carrito (compartido entre pantallas cliente)
+    val carritoViewModel: CarritoViewModel = viewModel()
 
     // observar estado
     val logged by viewModel.logged.collectAsState()
@@ -54,6 +61,9 @@ fun NavGraph(viewModel: AuthViewModel) {
         composable("admin/products") {
             AdminProductsScreen(navController, viewModel)
         }
+        composable("admin/graficos") {
+            AdminGraficosScreen(navController, viewModel)
+        }
 
         // gestor
         composable("gestor/dashboard") {
@@ -72,10 +82,13 @@ fun NavGraph(viewModel: AuthViewModel) {
         }
         composable("cliente/detalle/{productoId}") { backStackEntry ->
             val productoId = backStackEntry.arguments?.getString("productoId") ?: ""
-            ProductoDetalleScreen(navController, viewModel, productoId)
+            ProductoDetalleScreen(navController, viewModel, productoId, carritoViewModel)
         }
         composable("cliente/carrito") {
-            CarritoScreen(navController, viewModel)
+            CarritoScreen(navController, viewModel, carritoViewModel)
+        }
+        composable("cliente/factura") {
+            FacturaScreen(navController, carritoViewModel, viewModel)
         }
         composable("cliente/historial") {
             ClienteHistorialScreen(navController, viewModel)
