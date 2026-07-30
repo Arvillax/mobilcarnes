@@ -65,11 +65,11 @@ private val RedAccent = Color(0xFFD32F2F)
 
 // modelo producto
 data class Producto(
-    val id: String,
-    val nombre: String,
-    val precioKg: Double,
-    val stock: Int,
-    val descripcion: String,
+    val id: String = "",
+    val nombre: String = "",
+    val precioKg: Double = 0.0,
+    val stock: Int = 0,
+    val descripcion: String = "",
     val imagenRes: Int? = null,
     val imagenUri: String? = null,
     val habilitado: Boolean = true

@@ -1,10 +1,11 @@
 package com.example.fblogin.viewmodel
 
+import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fblogin.data.ProductoRepository
 import com.example.fblogin.ui.admin.Producto
-import com.example.fblogin.ui.admin.productosMock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,16 +13,40 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-// viewmodel de productos
-class ProductosViewModel : ViewModel() {
+// viewmodel de productos con Firestore + seed automatico
+class ProductosViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repo = ProductoRepository()
+    private val context = application
 
     // estado de la lista
-    private val _productos = MutableStateFlow(productosMock)
+    private val _productos = MutableStateFlow<List<Producto>>(emptyList())
     val productos: StateFlow<List<Producto>> = _productos.asStateFlow()
 
     // busqueda
     private val _busqueda = MutableStateFlow("")
     val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    // cargar productos desde Firestore + seed si vacio
+    init {
+        cargarProductos()
+    }
+
+    private fun cargarProductos() {
+        repo.obtenerProductos { lista ->
+            if (lista.isEmpty()) {
+                // Firestore vacio, hacer seed con productos iniciales
+                repo.seedProductos(context) { _ ->
+                    // despues del seed, recargar
+                    repo.obtenerProductos { listaFinal ->
+                        _productos.value = listaFinal
+                    }
+                }
+            } else {
+                _productos.value = lista
+            }
+        }
+    }
 
     // productos filtrados (solo habilitados por defecto + busqueda)
     val productosFiltrados: StateFlow<List<Producto>> = combine(
@@ -37,7 +62,7 @@ class ProductosViewModel : ViewModel() {
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = productosMock.filter { it.habilitado }
+        initialValue = emptyList()
     )
 
     // todos los productos (incluye deshabilitados para admin)
@@ -52,18 +77,12 @@ class ProductosViewModel : ViewModel() {
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = productosMock
+        initialValue = emptyList()
     )
 
     // buscar
     fun buscar(texto: String) {
         _busqueda.value = texto
-    }
-
-    // siguiente ID
-    private fun siguienteId(): String {
-        val maxId = _productos.value.mapNotNull { it.id.toIntOrNull() }.maxOrNull() ?: 0
-        return (maxId + 1).toString()
     }
 
     // agregar producto
@@ -75,17 +94,40 @@ class ProductosViewModel : ViewModel() {
         imagenRes: Int? = null,
         imagenUri: Uri? = null
     ) {
-        val nuevo = Producto(
-            id = siguienteId(),
-            nombre = nombre,
-            precioKg = precioKg,
-            stock = stock,
-            descripcion = descripcion,
-            imagenRes = imagenRes,
-            imagenUri = imagenUri?.toString(),
-            habilitado = true
-        )
-        _productos.value = _productos.value + nuevo
+        // si hay imagen de galeria, subir a Storage primero
+        if (imagenUri != null) {
+            repo.subirImagen(imagenUri) { url ->
+                val uriGuardada = url ?: imagenUri.toString()
+                val nuevo = Producto(
+                    id = "",
+                    nombre = nombre,
+                    precioKg = precioKg,
+                    stock = stock,
+                    descripcion = descripcion,
+                    imagenRes = null,
+                    imagenUri = uriGuardada,
+                    habilitado = true
+                )
+                repo.agregarProducto(nuevo) { exito ->
+                    if (exito) cargarProductos()
+                }
+            }
+        } else {
+            // imagen de drawable, sin subir
+            val nuevo = Producto(
+                id = "",
+                nombre = nombre,
+                precioKg = precioKg,
+                stock = stock,
+                descripcion = descripcion,
+                imagenRes = imagenRes,
+                imagenUri = null,
+                habilitado = true
+            )
+            repo.agregarProducto(nuevo) { exito ->
+                if (exito) cargarProductos()
+            }
+        }
     }
 
     // editar producto
@@ -98,29 +140,51 @@ class ProductosViewModel : ViewModel() {
         imagenRes: Int? = null,
         imagenUri: Uri? = null
     ) {
-        _productos.value = _productos.value.map { p ->
-            if (p.id == id) p.copy(
+        // si hay imagen de galeria, subir a Storage primero
+        if (imagenUri != null) {
+            repo.subirImagen(imagenUri) { url ->
+                val uriGuardada = url ?: imagenUri.toString()
+                val producto = Producto(
+                    id = id,
+                    nombre = nombre,
+                    precioKg = precioKg,
+                    stock = stock,
+                    descripcion = descripcion,
+                    imagenRes = null,
+                    imagenUri = uriGuardada
+                )
+                repo.editarProducto(id, producto) { exito ->
+                    if (exito) cargarProductos()
+                }
+            }
+        } else {
+            // imagen de drawable o sin cambio
+            val producto = Producto(
+                id = id,
                 nombre = nombre,
                 precioKg = precioKg,
                 stock = stock,
                 descripcion = descripcion,
                 imagenRes = imagenRes,
-                imagenUri = imagenUri?.toString()
-            ) else p
+                imagenUri = null
+            )
+            repo.editarProducto(id, producto) { exito ->
+                if (exito) cargarProductos()
+            }
         }
     }
 
     // deshabilitar producto
     fun deshabilitarProducto(id: String) {
-        _productos.value = _productos.value.map { p ->
-            if (p.id == id) p.copy(habilitado = false) else p
+        repo.cambiarEstado(id, false) { exito ->
+            if (exito) cargarProductos()
         }
     }
 
     // habilitar producto
     fun habilitarProducto(id: String) {
-        _productos.value = _productos.value.map { p ->
-            if (p.id == id) p.copy(habilitado = true) else p
+        repo.cambiarEstado(id, true) { exito ->
+            if (exito) cargarProductos()
         }
     }
 }

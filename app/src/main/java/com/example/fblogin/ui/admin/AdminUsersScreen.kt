@@ -42,6 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -58,7 +61,12 @@ private val White = Color(0xFFFFFFFF)
 private val GreenAccent = Color(0xFF2E7D32)
 
 // modelo usuario
-data class Usuario(val id: String, val nombre: String, val email: String, val rol: String)
+data class Usuario(
+    val id: String = "",
+    val nombre: String = "",
+    val email: String = "",
+    val rol: String = "CLIENTE"
+)
 
 // datos mock
 val usuariosMock = listOf(
@@ -289,8 +297,19 @@ fun AdminUsersScreen(
             nombreInicial = "",
             emailInicial = "",
             rolInicial = "CLIENTE",
-            onGuardar = { nombre, email, rol ->
-                usuariosVm.agregarUsuario(nombre, email, rol)
+            esEdicion = false,
+            onGuardar = { nombre, email, rol, password ->
+                if (password.isNotEmpty()) {
+                    // crear en Firebase Auth + Firestore, luego re-login admin
+                    usuariosVm.agregarUsuarioConAuth(nombre, email, password, rol) { exito ->
+                        if (exito) {
+                            vm.reLoginAdmin {}
+                        }
+                    }
+                } else {
+                    // solo Firestore (sin contraseña)
+                    usuariosVm.agregarUsuario(nombre, email, rol)
+                }
                 mostrarDialogoAgregar = false
             },
             onCancelar = { mostrarDialogoAgregar = false }
@@ -304,7 +323,8 @@ fun AdminUsersScreen(
             nombreInicial = usuario.nombre,
             emailInicial = usuario.email,
             rolInicial = usuario.rol,
-            onGuardar = { nombre, email, rol ->
+            esEdicion = true,
+            onGuardar = { nombre, email, rol, _ ->
                 usuariosVm.editarUsuario(usuario.id, nombre, email, rol)
                 usuarioAEditar = null
             },
@@ -394,14 +414,17 @@ private fun DialogoUsuario(
     nombreInicial: String,
     emailInicial: String,
     rolInicial: String,
-    onGuardar: (String, String, String) -> Unit,
+    esEdicion: Boolean,
+    onGuardar: (String, String, String, String) -> Unit,
     onCancelar: () -> Unit
 ) {
     var nombre by remember { mutableStateOf(nombreInicial) }
     var email by remember { mutableStateOf(emailInicial) }
+    var password by remember { mutableStateOf("") }
     var rol by remember { mutableStateOf(rolInicial) }
     var errorNombre by remember { mutableStateOf(false) }
     var errorEmail by remember { mutableStateOf(false) }
+    var errorPassword by remember { mutableStateOf(false) }
     var rolMenuExpanded by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -449,6 +472,29 @@ private fun DialogoUsuario(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // contraseña (solo en modo agregar)
+                if (!esEdicion) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            errorPassword = false
+                        },
+                        label = { Text("Contraseña") },
+                        isError = errorPassword,
+                        supportingText = if (errorPassword) {
+                            { Text("Mínimo 6 caracteres") }
+                        } else null,
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 // selector de rol
                 Box {
                     OutlinedTextField(
@@ -495,8 +541,9 @@ private fun DialogoUsuario(
                 onClick = {
                     errorNombre = nombre.length < 2
                     errorEmail = !email.contains("@") || !email.contains(".")
-                    if (!errorNombre && !errorEmail) {
-                        onGuardar(nombre, email, rol)
+                    errorPassword = !esEdicion && password.length < 6
+                    if (!errorNombre && !errorEmail && !errorPassword) {
+                        onGuardar(nombre, email, rol, password)
                     }
                 }
             ) {
