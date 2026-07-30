@@ -74,6 +74,22 @@ fun ClienteHistorialScreen(nav: NavController, vm: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // boton ver mi actividad
+            androidx.compose.material3.Button(
+                onClick = { nav.navigate("cliente/reportes") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Carmesi)
+            ) {
+                Text(
+                    text = "\uD83D\uDCCA Ver Mi Actividad",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // lista pedidos
             LazyColumn {
                 items(historialMock) { pedido ->

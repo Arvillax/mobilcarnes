@@ -15,14 +15,18 @@ import com.example.fblogin.ui.auth.LoginScreen
 import com.example.fblogin.ui.auth.RegisterScreen
 import com.example.fblogin.ui.cliente.CarritoScreen
 import com.example.fblogin.ui.cliente.CatalogoScreen
+import com.example.fblogin.ui.cliente.ClienteDashboardScreen
 import com.example.fblogin.ui.cliente.ClienteHistorialScreen
 import com.example.fblogin.ui.cliente.FacturaScreen
 import com.example.fblogin.ui.cliente.ProductoDetalleScreen
 import com.example.fblogin.ui.gestor.GestorDashboard
+import com.example.fblogin.ui.gestor.GestorDashboardScreen
 import com.example.fblogin.ui.gestor.GestorStockScreen
 import com.example.fblogin.ui.gestor.GestorVentasScreen
 import com.example.fblogin.viewmodel.AuthViewModel
 import com.example.fblogin.viewmodel.CarritoViewModel
+import com.example.fblogin.viewmodel.ClienteDashboardViewModel
+import com.example.fblogin.viewmodel.GestorDashboardViewModel
 import com.example.fblogin.viewmodel.ProductosViewModel
 import com.example.fblogin.viewmodel.UsuariosViewModel
 
@@ -41,6 +45,10 @@ fun NavGraph(viewModel: AuthViewModel) {
 
     // viewmodel de productos (compartido)
     val productosViewModel: ProductosViewModel = viewModel()
+
+    // viewmodels de dashboards
+    val gestorDashboardViewModel: GestorDashboardViewModel = viewModel()
+    val clienteDashboardViewModel: ClienteDashboardViewModel = viewModel()
 
     // observar estado
     val logged by viewModel.logged.collectAsState()
@@ -83,6 +91,9 @@ fun NavGraph(viewModel: AuthViewModel) {
         composable("gestor/ventas") {
             GestorVentasScreen(navController, viewModel)
         }
+        composable("gestor/reportes") {
+            GestorDashboardScreen(navController, viewModel, gestorDashboardViewModel)
+        }
 
         // cliente
         composable("cliente/catalogo") {
@@ -100,6 +111,9 @@ fun NavGraph(viewModel: AuthViewModel) {
         }
         composable("cliente/historial") {
             ClienteHistorialScreen(navController, viewModel)
+        }
+        composable("cliente/reportes") {
+            ClienteDashboardScreen(navController, viewModel, clienteDashboardViewModel)
         }
     }
 }

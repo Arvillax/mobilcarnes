@@ -39,7 +39,7 @@ class AuthViewModel : ViewModel() {
                 // asignar rol
                 _role.value = when {
                     email.contains("admin") -> UserRole.ADMIN
-                    email.contains("gestor") -> UserRole.GESTOR
+                    email.contains("gestor") || email == "pr@test.com" -> UserRole.GESTOR
                     else -> UserRole.CLIENTE
                 }
             } else {
@@ -57,7 +57,7 @@ class AuthViewModel : ViewModel() {
                 // asignar rol
                 _role.value = when {
                     email.contains("admin") -> UserRole.ADMIN
-                    email.contains("gestor") -> UserRole.GESTOR
+                    email.contains("gestor") || email == "pr@test.com" -> UserRole.GESTOR
                     else -> UserRole.CLIENTE
                 }
             } else {

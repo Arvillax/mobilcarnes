@@ -64,18 +64,33 @@ fun CatalogoScreen(nav: NavController, vm: AuthViewModel, productosVm: Productos
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Carne Fresca",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
-                    TextButton(onClick = { nav.navigate("cliente/carrito") }) {
-                        Text("Carrito", color = Rosa, fontSize = 14.sp)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Carne Fresca",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        TextButton(
+                            onClick = { nav.navigate("cliente/reportes") },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("\uD83D\uDCCA Mi Actividad", color = Rosa, fontSize = 13.sp)
+                        }
                     }
-                    TextButton(onClick = { vm.logout(); nav.navigate("login") { popUpTo(0) { inclusive = true } } }) {
-                        Text("Salir", color = Rosa, fontSize = 14.sp)
+                    Column(horizontalAlignment = Alignment.End) {
+                        TextButton(
+                            onClick = { nav.navigate("cliente/carrito") },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("Carrito", color = Rosa, fontSize = 14.sp)
+                        }
+                        TextButton(
+                            onClick = { vm.logout(); nav.navigate("login") { popUpTo(0) { inclusive = true } } },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("Salir", color = Rosa, fontSize = 14.sp)
+                        }
                     }
                 }
             }

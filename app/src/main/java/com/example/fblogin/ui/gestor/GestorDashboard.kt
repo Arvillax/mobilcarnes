@@ -54,12 +54,22 @@ fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
                 )
                 .padding(horizontal = 24.dp, vertical = 32.dp)
         ) {
-            Text(
-                text = "Gestor",
-                style = MaterialTheme.typography.headlineLarge,
-                color = White,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Gestor",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = White,
+                    fontWeight = FontWeight.Bold
+                )
+                // Boton acceso rapido reportes
+                TextButton(onClick = { nav.navigate("gestor/reportes") }) {
+                    Text("\uD83D\uDCCA Reportes", color = Rosa, fontWeight = FontWeight.Bold)
+                }
+            }
         }
 
         Column(
@@ -120,6 +130,21 @@ fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
                 Text(
                     text = "Ver Ventas",
                     style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+
+            // boton reportes operativos
+            androidx.compose.material3.Button(
+                onClick = { nav.navigate("gestor/reportes") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Carmesi)
+            ) {
+                Text(
+                    text = "Ver Reportes Operativos",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = White,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }

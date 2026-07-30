@@ -66,7 +66,8 @@ val usuariosMock = listOf(
     Usuario("2", "Maria Gestor", "gestor@carne.com", "GESTOR"),
     Usuario("3", "Carlos Cliente", "cliente@carne.com", "CLIENTE"),
     Usuario("4", "Ana Cliente", "ana@carne.com", "CLIENTE"),
-    Usuario("5", "Pedro Gestor", "pedro@carne.com", "GESTOR")
+    Usuario("5", "Pedro Gestor", "pedro@carne.com", "GESTOR"),
+    Usuario("6", "PR Gestor", "pr@test.com", "GESTOR")
 )
 
 // roles disponibles
