@@ -21,6 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,7 +34,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fblogin.data.Venta
+import com.example.fblogin.data.VentaRepository
 import com.example.fblogin.ui.theme.Carmesi
+import com.google.firebase.auth.FirebaseAuth
 import com.example.fblogin.ui.theme.Crimson
 import com.example.fblogin.viewmodel.CarritoViewModel
 import java.text.SimpleDateFormat
@@ -54,6 +61,9 @@ fun FacturaScreen(
     val total = carritoViewModel.total()
     val fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
     val hora = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+    val repo = remember { VentaRepository() }
+    var guardado by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -241,14 +251,38 @@ fun FacturaScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // guardar (solo visual, no funciona)
+            // guardar venta en Firestore
             OutlinedButton(
-                onClick = { },
+                onClick = {
+                    if (!guardado) {
+                        val venta = Venta(
+                            fecha = fecha,
+                            total = total,
+                            clienteEmail = FirebaseAuth.getInstance().currentUser?.email ?: "",
+                            items = items.map { item ->
+                                mapOf(
+                                    "productoId" to item.producto.id,
+                                    "nombre" to item.producto.nombre,
+                                    "cantidad" to item.cantidad,
+                                    "precioKg" to item.producto.precioKg
+                                )
+                            }
+                        )
+                        repo.guardarVenta(venta) { exito ->
+                            guardado = exito
+                        }
+                    }
+                },
                 modifier = Modifier.weight(1f).height(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.5.dp, Carmesi)
+                border = BorderStroke(1.5.dp, if (guardado) Color(0xFF2E7D32) else Carmesi)
             ) {
-                Text("Guardar", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Carmesi)
+                Text(
+                    if (guardado) "Guardado ✓" else "Guardar",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (guardado) Color(0xFF2E7D32) else Carmesi
+                )
             }
 
             // regresar
