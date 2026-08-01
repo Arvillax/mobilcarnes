@@ -19,6 +19,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.DashboardViewModel
 
 // colores tienda carne
 private val Vino = Color(0xFF610000)
@@ -40,7 +44,15 @@ private val GrayLight = Color(0xFFF5F5F5)
 
 // dashboard admin
 @Composable
-fun AdminDashboard(nav: NavController, vm: AuthViewModel) {
+fun AdminDashboard(nav: NavController, vm: AuthViewModel, dashboardVm: DashboardViewModel) {
+    val totalUsuarios by dashboardVm.totalUsuarios.collectAsState()
+    val totalProductos by dashboardVm.totalProductos.collectAsState()
+    val ventasDelDia by dashboardVm.ventasDelDia.collectAsState()
+
+    LaunchedEffect(Unit) {
+        dashboardVm.recargar()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,20 +87,25 @@ fun AdminDashboard(nav: NavController, vm: AuthViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(
-                    number = "25",
+                    number = "$totalUsuarios",
                     label = "Usuarios",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    number = "15",
+                    number = "$totalProductos",
                     label = "Productos",
                     modifier = Modifier.weight(1f)
                 )
             }
 
+            val ventasFormateada = if (ventasDelDia >= 1000) {
+                "$%,.0f".format(ventasDelDia)
+            } else {
+                "%.2f".format(ventasDelDia)
+            }
             StatCard(
-                number = "$12,500",
-                label = "Ventas",
+                number = "$ $ventasFormateada",
+                label = "Ventas del día",
                 modifier = Modifier.fillMaxWidth()
             )
 

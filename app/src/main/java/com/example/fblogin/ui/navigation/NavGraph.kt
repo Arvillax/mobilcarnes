@@ -26,6 +26,7 @@ import com.example.fblogin.ui.gestor.GestorVentasScreen
 import com.example.fblogin.viewmodel.AuthViewModel
 import com.example.fblogin.viewmodel.CarritoViewModel
 import com.example.fblogin.viewmodel.ClienteDashboardViewModel
+import com.example.fblogin.viewmodel.DashboardViewModel
 import com.example.fblogin.viewmodel.GestorDashboardViewModel
 import com.example.fblogin.viewmodel.ProductosViewModel
 import com.example.fblogin.viewmodel.UsuariosViewModel
@@ -49,6 +50,7 @@ fun NavGraph(viewModel: AuthViewModel) {
     // viewmodels de dashboards
     val gestorDashboardViewModel: GestorDashboardViewModel = viewModel()
     val clienteDashboardViewModel: ClienteDashboardViewModel = viewModel()
+    val dashboardViewModel: DashboardViewModel = viewModel()
 
     // observar estado
     val logged by viewModel.logged.collectAsState()
@@ -69,7 +71,7 @@ fun NavGraph(viewModel: AuthViewModel) {
 
         // admin
         composable("admin/dashboard") {
-            AdminDashboard(navController, viewModel)
+            AdminDashboard(navController, viewModel, dashboardViewModel)
         }
         composable("admin/users") {
             AdminUsersScreen(navController, viewModel, usuariosViewModel)
