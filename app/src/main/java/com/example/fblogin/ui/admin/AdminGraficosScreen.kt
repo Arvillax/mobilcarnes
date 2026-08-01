@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,15 +44,10 @@ import com.example.fblogin.ui.admin.charts.AreaLineChart
 import com.example.fblogin.ui.admin.charts.DonutChart
 import com.example.fblogin.ui.admin.charts.HorizontalBarChart
 import com.example.fblogin.ui.admin.charts.VerticalBarChart
-import com.example.fblogin.ui.admin.charts.inventarioActual
-import com.example.fblogin.ui.admin.charts.tendenciaMensual
-import com.example.fblogin.ui.admin.charts.topProductos
-import com.example.fblogin.ui.admin.charts.ventasPorMes
-import com.example.fblogin.ui.admin.charts.ventasPorProducto
-import com.example.fblogin.ui.admin.charts.distribucionUsuarios
 import com.example.fblogin.ui.theme.Vino
 import com.example.fblogin.ui.theme.Carmesi
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.ReportesViewModel
 import com.example.fblogin.viewmodel.UserRole
 
 // opciones de reportes
@@ -68,7 +65,8 @@ private val reportOptions = listOf(
 @Composable
 fun AdminGraficosScreen(
     nav: NavController,
-    vm: AuthViewModel
+    vm: AuthViewModel,
+    reportesVm: ReportesViewModel
 ) {
     // seguridad: solo admin
     if (vm.role.value != UserRole.ADMIN) {
@@ -95,6 +93,18 @@ fun AdminGraficosScreen(
 
     var selectedReportIndex by remember { mutableIntStateOf(0) }
     var dropdownExpanded by remember { mutableStateOf(false) }
+
+    // datos reales de Firestore
+    val ventasPorMes by reportesVm.ventasPorMes.collectAsState()
+    val ventasPorProducto by reportesVm.ventasPorProducto.collectAsState()
+    val tendenciaMensual by reportesVm.tendenciaMensual.collectAsState()
+    val topProductos by reportesVm.topProductos.collectAsState()
+    val inventarioActual by reportesVm.inventarioActual.collectAsState()
+    val distribucionUsuarios by reportesVm.distribucionUsuarios.collectAsState()
+
+    LaunchedEffect(Unit) {
+        reportesVm.recargar()
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         // header gradiente
