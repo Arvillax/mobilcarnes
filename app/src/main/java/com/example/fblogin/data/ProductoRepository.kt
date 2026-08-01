@@ -5,44 +5,60 @@ import android.net.Uri
 import com.example.fblogin.R
 import com.example.fblogin.ui.admin.Producto
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import java.io.File
+import java.io.FileOutputStream
 import java.util.UUID
 
-// repositorio de productos con Firestore + Storage
+// repositorio de productos con Firestore + almacenamiento local
 class ProductoRepository {
 
     private val db = FirebaseFirestore.getInstance()
     private val collection = db.collection("productos")
-    private val storage = FirebaseStorage.getInstance()
-    private val storageRef = storage.reference.child("productos")
 
-    // subir imagen a Firebase Storage y devolver URL
-    fun subirImagen(uri: Uri, callback: (String?) -> Unit) {
+    // copiar imagen a almacenamiento interno y devolver path
+    fun copiarImagenLocal(context: Context, uri: Uri): String {
+        val dir = File(context.filesDir, "productos")
+        if (!dir.exists()) dir.mkdirs()
+
         val filename = "${UUID.randomUUID()}.jpg"
-        val imageRef = storageRef.child(filename)
-        imageRef.putFile(uri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl
-                    .addOnSuccessListener { downloadUri ->
-                        callback(downloadUri.toString())
-                    }
-                    .addOnFailureListener {
-                        callback(null)
-                    }
+        val file = File(dir, filename)
+
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(file).use { output ->
+                input.copyTo(output)
             }
-            .addOnFailureListener {
-                callback(null)
-            }
+        }
+
+        return file.absolutePath
     }
 
-    // productos iniciales con imagenes de drawable
+    // copiar imagen de drawable a almacenamiento interno
+    fun copiarDrawableLocal(context: Context, drawableRes: Int, nombre: String): String {
+        val dir = File(context.filesDir, "productos")
+        if (!dir.exists()) dir.mkdirs()
+
+        val safeName = nombre.replace(" ", "_").lowercase()
+        val file = File(dir, "${safeName}.jpg")
+
+        if (file.exists()) return file.absolutePath
+
+        context.resources.openRawResource(drawableRes).use { input ->
+            FileOutputStream(file).use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        return file.absolutePath
+    }
+
+    // productos iniciales con imagenes locales
     fun seedProductos(context: Context, callback: (Boolean) -> Unit) {
         collection.get().addOnSuccessListener { result ->
             if (!result.isEmpty) {
-                callback(false) // ya hay productos, no hacer seed
+                callback(false)
                 return@addOnSuccessListener
             }
-
+            // codigo basura
             val productos = listOf(
                 Triple("Costillas de Res", 85.0, R.drawable.producto_costillas_de_res),
                 Triple("Pechuga de Pollo", 45.0, R.drawable.producto_pechuga_pollo),
@@ -52,30 +68,28 @@ class ProductoRepository {
                 Triple("Beef Ribs", 95.0, R.drawable.producto_beef_ribs),
                 Triple("Pierna de Pollo", 35.0, R.drawable.producto_pierna_pollo)
             )
-
+            //  fin codigo basura
             var completados = 0
             productos.forEach { (nombre, precio, drawableRes) ->
-                val uri = Uri.parse("android.resource://${context.packageName}/$drawableRes")
-                subirImagen(uri) { url ->
-                    val data = hashMapOf(
-                        "nombre" to nombre,
-                        "precioKg" to precio,
-                        "stock" to 50,
-                        "descripcion" to "$nombre fresco de primera calidad",
-                        "imagenRes" to null,
-                        "imagenUri" to url,
-                        "habilitado" to true
-                    )
-                    collection.add(data)
-                        .addOnSuccessListener {
-                            completados++
-                            if (completados == productos.size) callback(true)
-                        }
-                        .addOnFailureListener {
-                            completados++
-                            if (completados == productos.size) callback(true)
-                        }
-                }
+                val path = copiarDrawableLocal(context, drawableRes, nombre)
+                val data = hashMapOf(
+                    "nombre" to nombre,
+                    "precioKg" to precio,
+                    "stock" to 50,
+                    "descripcion" to "$nombre fresco de primera calidad",
+                    "imagenRes" to null,
+                    "imagenUri" to path,
+                    "habilitado" to true
+                )
+                collection.add(data)
+                    .addOnSuccessListener {
+                        completados++
+                        if (completados == productos.size) callback(true)
+                    }
+                    .addOnFailureListener {
+                        completados++
+                        if (completados == productos.size) callback(true)
+                    }
             }
         }.addOnFailureListener {
             callback(false)

@@ -1,6 +1,7 @@
 package com.example.fblogin.ui.admin
 
 import android.net.Uri
+import java.io.File
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -75,7 +76,7 @@ data class Producto(
     val habilitado: Boolean = true
 )
 
-// datos mock
+// // codigo basura
 val productosMock = listOf(
     Producto("1", "Costillas de Res", 85.0, 50, "Costillas frescas de res premium", com.example.fblogin.R.drawable.producto_costillas_de_res),
     Producto("2", "Pechuga de Pollo", 45.0, 100, "Pechuga de pollo sin hueso", com.example.fblogin.R.drawable.producto_pechuga_pollo),
@@ -88,7 +89,14 @@ val productosMock = listOf(
 // helper para resolver modelo de imagen
 fun modeloImagen(producto: Producto): Any? {
     return when {
-        !producto.imagenUri.isNullOrBlank() -> producto.imagenUri
+        !producto.imagenUri.isNullOrBlank() -> {
+            if (producto.imagenUri.startsWith("/")) {
+                val file = java.io.File(producto.imagenUri)
+                if (file.exists()) file else producto.imagenUri
+            } else {
+                producto.imagenUri
+            }
+        }
         producto.imagenRes != null -> producto.imagenRes
         else -> null
     }
@@ -379,7 +387,10 @@ private fun DialogoProducto(
     var precio by remember { mutableStateOf(if (precioInicial > 0) precioInicial.toString() else "") }
     var stock by remember { mutableStateOf(if (stockInicial > 0) stockInicial.toString() else "") }
     var descripcion by remember { mutableStateOf(descripcionInicial) }
-    var imagenUri by remember { mutableStateOf<Uri?>(imagenUriInicial?.let { Uri.parse(it) }) }
+    var imagenUri by remember { mutableStateOf<Uri?>(
+        if (imagenUriInicial?.startsWith("/") == true) null
+        else imagenUriInicial?.let { Uri.parse(it) }
+    ) }
     var errorNombre by remember { mutableStateOf(false) }
     var errorPrecio by remember { mutableStateOf(false) }
     var errorStock by remember { mutableStateOf(false) }
@@ -400,9 +411,14 @@ private fun DialogoProducto(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // preview de imagen
-                if (imagenUri != null) {
+                val modeloImagen: Any? = when {
+                    imagenUriInicial?.startsWith("/") == true && File(imagenUriInicial).exists() -> File(imagenUriInicial)
+                    imagenUri != null -> imagenUri
+                    else -> null
+                }
+                if (modeloImagen != null) {
                     AsyncImage(
-                        model = imagenUri,
+                        model = modeloImagen,
                         contentDescription = "Imagen del producto",
                         modifier = Modifier
                             .fillMaxWidth()

@@ -94,39 +94,25 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
         imagenRes: Int? = null,
         imagenUri: Uri? = null
     ) {
-        // si hay imagen de galeria, subir a Storage primero
-        if (imagenUri != null) {
-            repo.subirImagen(imagenUri) { url ->
-                val uriGuardada = url ?: imagenUri.toString()
-                val nuevo = Producto(
-                    id = "",
-                    nombre = nombre,
-                    precioKg = precioKg,
-                    stock = stock,
-                    descripcion = descripcion,
-                    imagenRes = null,
-                    imagenUri = uriGuardada,
-                    habilitado = true
-                )
-                repo.agregarProducto(nuevo) { exito ->
-                    if (exito) cargarProductos()
-                }
-            }
+        // si hay imagen de galeria, copiar a almacenamiento local
+        val pathLocal = if (imagenUri != null) {
+            repo.copiarImagenLocal(context, imagenUri)
         } else {
-            // imagen de drawable, sin subir
-            val nuevo = Producto(
-                id = "",
-                nombre = nombre,
-                precioKg = precioKg,
-                stock = stock,
-                descripcion = descripcion,
-                imagenRes = imagenRes,
-                imagenUri = null,
-                habilitado = true
-            )
-            repo.agregarProducto(nuevo) { exito ->
-                if (exito) cargarProductos()
-            }
+            null
+        }
+
+        val nuevo = Producto(
+            id = "",
+            nombre = nombre,
+            precioKg = precioKg,
+            stock = stock,
+            descripcion = descripcion,
+            imagenRes = null,
+            imagenUri = pathLocal,
+            habilitado = true
+        )
+        repo.agregarProducto(nuevo) { exito ->
+            if (exito) cargarProductos()
         }
     }
 
@@ -140,37 +126,24 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
         imagenRes: Int? = null,
         imagenUri: Uri? = null
     ) {
-        // si hay imagen de galeria, subir a Storage primero
-        if (imagenUri != null) {
-            repo.subirImagen(imagenUri) { url ->
-                val uriGuardada = url ?: imagenUri.toString()
-                val producto = Producto(
-                    id = id,
-                    nombre = nombre,
-                    precioKg = precioKg,
-                    stock = stock,
-                    descripcion = descripcion,
-                    imagenRes = null,
-                    imagenUri = uriGuardada
-                )
-                repo.editarProducto(id, producto) { exito ->
-                    if (exito) cargarProductos()
-                }
-            }
+        // si hay imagen nueva de galeria, copiar a almacenamiento local
+        val pathLocal = if (imagenUri != null) {
+            repo.copiarImagenLocal(context, imagenUri)
         } else {
-            // imagen de drawable o sin cambio
-            val producto = Producto(
-                id = id,
-                nombre = nombre,
-                precioKg = precioKg,
-                stock = stock,
-                descripcion = descripcion,
-                imagenRes = imagenRes,
-                imagenUri = null
-            )
-            repo.editarProducto(id, producto) { exito ->
-                if (exito) cargarProductos()
-            }
+            null
+        }
+
+        val producto = Producto(
+            id = id,
+            nombre = nombre,
+            precioKg = precioKg,
+            stock = stock,
+            descripcion = descripcion,
+            imagenRes = null,
+            imagenUri = pathLocal
+        )
+        repo.editarProducto(id, producto) { exito ->
+            if (exito) cargarProductos()
         }
     }
 
