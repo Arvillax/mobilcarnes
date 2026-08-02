@@ -11,7 +11,7 @@ val Rosa = Color(0xFFFF9EA2)
 
 // variantes
 val VinoDark = Color(0xFF4A0000)
-val CrimsonLight = Color(0xFFE8384F)
+// val CrimsonLight = Color(0xFFE8384F) // COMENTADO: no se usa en ningun archivo
 val RosaSoft = Color(0xFFFFB3B7)
 val White = Color(0xFFFFFFFF)
 val GrayLight = Color(0xFFF5F5F5)

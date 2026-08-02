@@ -150,9 +150,12 @@ class ProductoRepository {
     }
 
     // eliminar producto
+    // COMENTADO: no se usa, la UI solo deshabilita productos
+    /*
     fun eliminarProducto(id: String, callback: (Boolean) -> Unit) {
         collection.document(id).delete()
             .addOnSuccessListener { callback(true) }
             .addOnFailureListener { callback(false) }
     }
+    */
 }

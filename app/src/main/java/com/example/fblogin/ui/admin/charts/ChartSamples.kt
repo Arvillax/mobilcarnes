@@ -7,6 +7,11 @@ data class BarData(val label: String, val value: Float, val color: Color)
 data class PieData(val label: String, val value: Float, val color: Color)
 data class LineData(val label: String, val value: Float)
 
+// ==========================================
+// MOCK DATA — COMENTADO: datos ahora vienen de ReportesViewModel
+// ==========================================
+
+/*
 // colores graficos
 private val ChartVino = Color(0xFF610000)
 private val ChartCarmesi = Color(0xFF9C0720)
@@ -85,3 +90,4 @@ val distribucionUsuarios = listOf(
     PieData("Gestores", 5f, ChartCarmesi),
     PieData("Clientes", 17f, ChartCrimson)
 )
+*/

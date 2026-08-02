@@ -61,12 +61,15 @@ class UsuarioRepository {
     }
 
     // re-login del admin despues de crear usuario
+    // COMENTADO: no se usa, AuthViewModel maneja re-login directamente
+    /*
     fun reLoginAdmin(email: String, password: String, callback: (Boolean) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 callback(task.isSuccessful)
             }
     }
+    */
 
     // editar usuario
     fun editarUsuario(id: String, usuario: Usuario, callback: (Boolean) -> Unit) {

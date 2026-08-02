@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -136,7 +137,7 @@ fun AdminGraficosScreen(
                 Text("← Volver", fontSize = 16.sp)
             }
 
-            Spacer2(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // dropdown selector
             ExposedDropdownMenuBox(
@@ -176,7 +177,7 @@ fun AdminGraficosScreen(
                 }
             }
 
-            Spacer2(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // grafico con animacion de transicion
             AnimatedContent(
@@ -242,8 +243,3 @@ fun AdminGraficosScreen(
     }
 }
 
-// helper para Spacer con modifier
-@Composable
-private fun Spacer2(modifier: Modifier) {
-    androidx.compose.foundation.layout.Spacer(modifier = modifier)
-}

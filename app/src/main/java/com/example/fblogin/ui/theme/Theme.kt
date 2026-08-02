@@ -1,5 +1,7 @@
 package com.example.fblogin.ui.theme
 
+// COMENTADO: FbloginTheme no se usa — MainActivity usa NavGraph directo sin wrapper de tema
+/*
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -67,3 +69,4 @@ fun FbloginTheme(
         content = content
     )
 }
+*/

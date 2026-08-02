@@ -58,7 +58,7 @@ import com.example.fblogin.viewmodel.UsuariosViewModel
 
 // colores locales
 private val White = Color(0xFFFFFFFF)
-private val GreenAccent = Color(0xFF2E7D32)
+// private val GreenAccent = Color(0xFF2E7D32) // COMENTADO: no se usa
 
 // modelo usuario
 data class Usuario(
@@ -69,6 +69,8 @@ data class Usuario(
 )
 
 // datos mock
+// COMENTADO: datos ahora vienen de UsuariosViewModel via Firestore
+/*
 val usuariosMock = listOf(
     Usuario("1", "Juan Admin", "admin@carne.com", "ADMIN"),
     Usuario("2", "Maria Gestor", "gestor@carne.com", "GESTOR"),
@@ -77,6 +79,7 @@ val usuariosMock = listOf(
     Usuario("5", "Pedro Gestor", "pedro@carne.com", "GESTOR"),
     Usuario("6", "PR Gestor", "pr@test.com", "GESTOR")
 )
+*/
 
 // roles disponibles
 private val rolesDisponibles = listOf("ADMIN", "GESTOR", "CLIENTE")

@@ -77,6 +77,8 @@ data class Producto(
 )
 
 // // codigo basura
+// COMENTADO: datos ahora vienen de ProductosViewModel via Firestore
+/*
 val productosMock = listOf(
     Producto("1", "Costillas de Res", 85.0, 50, "Costillas frescas de res premium", com.example.fblogin.R.drawable.producto_costillas_de_res),
     Producto("2", "Pechuga de Pollo", 45.0, 100, "Pechuga de pollo sin hueso", com.example.fblogin.R.drawable.producto_pechuga_pollo),
@@ -85,6 +87,7 @@ val productosMock = listOf(
     Producto("5", "Albóndigas Mixtas", 55.0, 80, "Albóndigas de res y cerdo", null),
     Producto("6", "Punta de Anca", 95.0, 25, "Punta de anca argentina", null)
 )
+*/
 
 // helper para resolver modelo de imagen
 fun modeloImagen(producto: Producto): Any? {
@@ -416,7 +419,7 @@ private fun DialogoProducto(
                     imagenUri != null -> imagenUri
                     else -> null
                 }
-                if (modeloImagen != null) {
+                if (modeloImagen != null) { 
                     AsyncImage(
                         model = modeloImagen,
                         contentDescription = "Imagen del producto",

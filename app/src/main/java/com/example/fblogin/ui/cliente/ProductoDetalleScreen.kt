@@ -15,7 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedIconButton
+// import androidx.compose.material3.OutlinedIconButton // COMENTADO: no se usa en este archivo
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.fblogin.ui.admin.modeloImagen
-import com.example.fblogin.ui.admin.productosMock
+// import com.example.fblogin.ui.admin.productosMock // COMENTADO: no se usa, datos vienen de Firestore
 import com.example.fblogin.ui.theme.Vino
 import com.example.fblogin.ui.theme.Carmesi
 import com.example.fblogin.ui.theme.Crimson

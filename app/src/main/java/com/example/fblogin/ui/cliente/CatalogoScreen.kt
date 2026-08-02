@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.fblogin.ui.admin.modeloImagen
-import com.example.fblogin.ui.admin.productosMock
+// import com.example.fblogin.ui.admin.productosMock // COMENTADO: no se usa, datos vienen de Firestore
 import com.example.fblogin.viewmodel.AuthViewModel
 import com.example.fblogin.viewmodel.ProductosViewModel
 
@@ -43,7 +43,7 @@ import com.example.fblogin.viewmodel.ProductosViewModel
 import com.example.fblogin.ui.theme.Vino
 import com.example.fblogin.ui.theme.Carmesi
 import com.example.fblogin.ui.theme.Crimson
-import com.example.fblogin.ui.theme.Coral
+// import com.example.fblogin.ui.theme.Coral // COMENTADO: no se usa en este archivo
 import com.example.fblogin.ui.theme.Rosa
 import com.example.fblogin.ui.theme.GrayLight
 

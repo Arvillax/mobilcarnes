@@ -1,7 +1,7 @@
 package com.example.fblogin.data
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+// import com.google.firebase.firestore.Query // COMENTADO: solo se usa en obtenerVentas()
 
 // modelo venta
 data class Venta(
@@ -32,6 +32,8 @@ class VentaRepository {
     }
 
     // obtener todas las ventas
+    // COMENTADO: no se usa, los reportes usan ReportesViewModel directamente
+    /*
     fun obtenerVentas(callback: (List<Venta>) -> Unit) {
         collection.orderBy("fecha", Query.Direction.DESCENDING)
             .get()
@@ -45,4 +47,5 @@ class VentaRepository {
                 callback(emptyList())
             }
     }
+    */
 }
