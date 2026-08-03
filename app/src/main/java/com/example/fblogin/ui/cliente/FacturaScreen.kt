@@ -54,7 +54,8 @@ private val SeparatorColor = Color(0xFFBBBBBB)
 fun FacturaScreen(
     nav: NavController,
     carritoViewModel: CarritoViewModel,
-    vm: com.example.fblogin.viewmodel.AuthViewModel
+    vm: com.example.fblogin.viewmodel.AuthViewModel,
+    productosVm: com.example.fblogin.viewmodel.ProductosViewModel
 ) {
 
     val items = carritoViewModel.items.value
@@ -271,6 +272,7 @@ fun FacturaScreen(
                         repo.guardarVenta(venta) { exito ->
                             if (exito) {
                                 repo.descontarStock(venta.items) { stockOk ->
+                                    productosVm.recargarProductos()
                                     guardado = true
                                 }
                             } else {

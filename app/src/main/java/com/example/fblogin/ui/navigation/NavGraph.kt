@@ -111,7 +111,7 @@ fun NavGraph(viewModel: AuthViewModel) {
             CarritoScreen(navController, viewModel, carritoViewModel)
         }
         composable("cliente/factura") {
-            FacturaScreen(navController, carritoViewModel, viewModel)
+            FacturaScreen(navController, carritoViewModel, viewModel, productosViewModel)
         }
         composable("cliente/historial") {
             ClienteHistorialScreen(navController, viewModel)

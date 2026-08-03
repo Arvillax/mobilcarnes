@@ -29,10 +29,11 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
 
     // cargar productos desde Firestore + seed si vacio
     init {
-        cargarProductos()
+        recargarProductos()
     }
 
-    private fun cargarProductos() {
+    // recargar productos desde Firestore (publico para que otras pantallas lo llamen)
+    fun recargarProductos() {
         repo.obtenerProductos { lista ->
             if (lista.isEmpty()) {
                 // Firestore vacio, hacer seed con productos iniciales
@@ -112,7 +113,7 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
             habilitado = true
         )
         repo.agregarProducto(nuevo) { exito ->
-            if (exito) cargarProductos()
+            if (exito) recargarProductos()
         }
     }
 
@@ -143,21 +144,21 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
             imagenUri = pathLocal
         )
         repo.editarProducto(id, producto) { exito ->
-            if (exito) cargarProductos()
+            if (exito) recargarProductos()
         }
     }
 
     // deshabilitar producto
     fun deshabilitarProducto(id: String) {
         repo.cambiarEstado(id, false) { exito ->
-            if (exito) cargarProductos()
+            if (exito) recargarProductos()
         }
     }
 
     // habilitar producto
     fun habilitarProducto(id: String) {
         repo.cambiarEstado(id, true) { exito ->
-            if (exito) cargarProductos()
+            if (exito) recargarProductos()
         }
     }
 }
