@@ -31,6 +31,7 @@ import com.example.fblogin.viewmodel.GestorDashboardViewModel
 import com.example.fblogin.viewmodel.ProductosViewModel
 import com.example.fblogin.viewmodel.ReportesViewModel
 import com.example.fblogin.viewmodel.UsuariosViewModel
+import com.example.fblogin.viewmodel.GestorVentasViewModel
 
 // navegacion principal
 @Composable
@@ -50,6 +51,7 @@ fun NavGraph(viewModel: AuthViewModel) {
 
     // viewmodels de dashboards
     val gestorDashboardViewModel: GestorDashboardViewModel = viewModel()
+    val gestorVentasViewModel: GestorVentasViewModel = viewModel()
     val clienteDashboardViewModel: ClienteDashboardViewModel = viewModel()
     val dashboardViewModel: DashboardViewModel = viewModel()
     val reportesViewModel: ReportesViewModel = viewModel()
@@ -93,7 +95,7 @@ fun NavGraph(viewModel: AuthViewModel) {
             GestorStockScreen(navController, viewModel, productosViewModel)
         }
         composable("gestor/ventas") {
-            GestorVentasScreen(navController, viewModel)
+            GestorVentasScreen(navController, viewModel, gestorVentasViewModel)
         }
         composable("gestor/reportes") {
             GestorDashboardScreen(navController, viewModel, gestorDashboardViewModel)

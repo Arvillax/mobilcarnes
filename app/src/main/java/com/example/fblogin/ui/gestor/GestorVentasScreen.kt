@@ -15,10 +15,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -26,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.GestorVentasViewModel
 
 private val Vino = Color(0xFF610000)
 private val Carmesi = Color(0xFF9C0720)
@@ -34,21 +40,17 @@ private val Coral = Color(0xFFF1666D)
 private val Rosa = Color(0xFFFF9EA2)
 private val White = Color(0xFFFFFFFF)
 
-// modelo venta
-data class Venta(val id: String, val fecha: String, val total: Double, val cliente: String, val productos: String)
-
-// datos mock
-val ventasMock = listOf(
-    Venta("1", "27/07/2026 10:30", 450.0, "Carlos Cliente", "Costillas x2kg, Pollo x1kg"),
-    Venta("2", "27/07/2026 11:15", 280.0, "Ana Cliente", "Lomo x2kg, Chuletas x0.5kg"),
-    Venta("3", "27/07/2026 14:00", 190.0, "Pedro Gestor", "Pechuga x3kg, Albóndigas x1kg"),
-    Venta("4", "27/07/2026 15:45", 520.0, "Juan Admin", "Punta de Anca x4kg, Costillas x1kg"),
-    Venta("5", "27/07/2026 16:30", 350.0, "Maria Gestor", "Lomo x3kg, Pollo x2kg")
-)
-
 // pantalla ventas
 @Composable
-fun GestorVentasScreen(nav: NavController, vm: AuthViewModel) {
+fun GestorVentasScreen(nav: NavController, vm: AuthViewModel, gestorVentasVm: GestorVentasViewModel) {
+    val ventas by gestorVentasVm.ventas.collectAsState()
+    val totalVentas by gestorVentasVm.totalVentas.collectAsState()
+    val cargando by gestorVentasVm.cargando.collectAsState()
+
+    LaunchedEffect(Unit) {
+        gestorVentasVm.recargar()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,68 +96,96 @@ fun GestorVentasScreen(nav: NavController, vm: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // total ventas
-            Text(
-                text = "Total: $1,790",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Crimson,
-                fontWeight = FontWeight.Bold
-            )
+            if (cargando) {
+                // loading
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Carmesi)
+                }
+            } else {
+                // total ventas
+                Text(
+                    text = "Total: $${String.format("%,.0f", totalVentas)}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Crimson,
+                    fontWeight = FontWeight.Bold
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // lista ventas
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(ventasMock) { venta ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Rosa.copy(alpha = 0.3f)),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                if (ventas.isEmpty()) {
+                    // sin ventas hoy
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            // id y fecha
-                            Text(
-                                text = "Venta #${venta.id}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Vino
-                            )
-                            Text(
-                                text = venta.fecha,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Coral
-                            )
+                        Text(
+                            text = "No hay ventas registradas hoy",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    // lista ventas
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(ventas) { venta ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Rosa.copy(alpha = 0.3f)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    // id y fecha
+                                    Text(
+                                        text = "Venta #${venta.id.take(8)}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Vino
+                                    )
+                                    Text(
+                                        text = venta.fecha,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Coral
+                                    )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
 
-                            // cliente
-                            Text(
-                                text = venta.cliente,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Carmesi
-                            )
+                                    // cliente
+                                    Text(
+                                        text = venta.clienteEmail,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Carmesi
+                                    )
 
-                            // productos
-                            Text(
-                                text = venta.productos,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Coral
-                            )
+                                    // items
+                                    venta.items.forEach { item ->
+                                        val nombre = item["nombre"] as? String ?: ""
+                                        val cantidad = (item["cantidad"] as? Number)?.toDouble() ?: 0.0
+                                        Text(
+                                            text = "$nombre × ${String.format("%.1f", cantidad)} kg",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Coral
+                                        )
+                                    }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
 
-                            // total
-                            Text(
-                                text = "$${venta.total}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Crimson
-                            )
+                                    // total
+                                    Text(
+                                        text = "$${String.format("%.2f", venta.total)}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Crimson
+                                    )
+                                }
+                            }
                         }
                     }
                 }
