@@ -30,7 +30,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun VerticalBarChart(
     data: List<BarData>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: String = "Ventas por mes",
+    valuePrefix: String = "$"
 ) {
     var animationPlayed by remember { mutableStateOf(false) }
     val animatedProgress by animateFloatAsState(
@@ -41,14 +43,14 @@ fun VerticalBarChart(
 
     LaunchedEffect(Unit) { animationPlayed = true }
 
-    val maxValue = data.maxOf { it.value }
+    val maxValue = data.maxOfOrNull { it.value } ?: 1f
 
     Column(
         modifier = modifier.fillMaxWidth().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Ventas por mes",
+            text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -87,8 +89,13 @@ fun VerticalBarChart(
                         textAlign = android.graphics.Paint.Align.CENTER
                         isFakeBoldText = true
                     }
+                    val displayValue = if (valuePrefix.isEmpty()) {
+                        String.format("%.0f", bar.value)
+                    } else {
+                        "$valuePrefix${String.format("%.0f", bar.value)}"
+                    }
                     drawText(
-                        "$${String.format("%.0f", bar.value)}",
+                        displayValue,
                         x + barWidth / 2,
                         y - 8f,
                         paint
@@ -118,7 +125,8 @@ fun VerticalBarChart(
 @Composable
 fun HorizontalBarChart(
     data: List<BarData>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    unit: String = "kg"
 ) {
     var animationPlayed by remember { mutableStateOf(false) }
     val animatedProgress by animateFloatAsState(
@@ -129,7 +137,7 @@ fun HorizontalBarChart(
 
     LaunchedEffect(Unit) { animationPlayed = true }
 
-    val maxValue = data.maxOf { it.value }
+    val maxValue = data.maxOfOrNull { it.value } ?: 1f
 
     Column(modifier = modifier.fillMaxWidth().padding(16.dp)) {
         data.forEach { bar ->
@@ -163,7 +171,7 @@ fun HorizontalBarChart(
             }
 
             Text(
-                text = "${String.format("%.0f", bar.value)} kg",
+                text = "${String.format("%.0f", bar.value)} $unit",
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 8.dp)
