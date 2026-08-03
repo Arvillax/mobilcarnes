@@ -269,7 +269,13 @@ fun FacturaScreen(
                             }
                         )
                         repo.guardarVenta(venta) { exito ->
-                            guardado = exito
+                            if (exito) {
+                                repo.descontarStock(venta.items) { stockOk ->
+                                    guardado = true
+                                }
+                            } else {
+                                guardado = false
+                            }
                         }
                     }
                 },

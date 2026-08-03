@@ -87,7 +87,7 @@ fun NavGraph(viewModel: AuthViewModel) {
 
         // gestor
         composable("gestor/dashboard") {
-            GestorDashboard(navController, viewModel)
+            GestorDashboard(navController, viewModel, gestorDashboardViewModel)
         }
         composable("gestor/stock") {
             GestorStockScreen(navController, viewModel, productosViewModel)

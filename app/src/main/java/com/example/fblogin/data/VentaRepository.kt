@@ -1,7 +1,7 @@
 package com.example.fblogin.data
 
 import com.google.firebase.firestore.FirebaseFirestore
-// import com.google.firebase.firestore.Query // COMENTADO: solo se usa en obtenerVentas()
+import com.google.firebase.firestore.FieldValue
 
 // modelo venta
 data class Venta(
@@ -27,6 +27,20 @@ class VentaRepository {
             "items" to venta.items
         )
         collection.add(data)
+            .addOnSuccessListener { callback(true) }
+            .addOnFailureListener { callback(false) }
+    }
+
+    // descontar stock de productos vendidos (batch atomico)
+    fun descontarStock(items: List<Map<String, Any>>, callback: (Boolean) -> Unit) {
+        val batch = db.batch()
+        items.forEach { item ->
+            val productoId = item["productoId"] as? String ?: return@forEach
+            val cantidad = (item["cantidad"] as? Number)?.toDouble() ?: 0.0
+            val ref = db.collection("productos").document(productoId)
+            batch.update(ref, "stock", FieldValue.increment(-cantidad.toLong()))
+        }
+        batch.commit()
             .addOnSuccessListener { callback(true) }
             .addOnFailureListener { callback(false) }
     }

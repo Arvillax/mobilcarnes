@@ -60,7 +60,7 @@ fun GestorDashboardScreen(
     val totalStock by dashboardVm.totalStock.collectAsState()
     val stockCritico by dashboardVm.stockCritico.collectAsState()
     val ventasHoy by dashboardVm.ventasHoy.collectAsState()
-    val pedidosPendientes by dashboardVm.pedidosPendientes.collectAsState()
+    val pedidosHoy by dashboardVm.pedidosHoy.collectAsState()
 
     val inventarioData by dashboardVm.inventarioData.collectAsState()
     val ventasSemanales by dashboardVm.ventasSemanales.collectAsState()
@@ -117,7 +117,7 @@ fun GestorDashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(ventasHoy, "Ventas Hoy", Modifier.weight(1f))
-                StatCard(pedidosPendientes, "Pedidos Pend.", Modifier.weight(1f))
+                StatCard(pedidosHoy, "Pedidos Hoy", Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(8.dp))

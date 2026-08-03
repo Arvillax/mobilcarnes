@@ -19,6 +19,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.fblogin.viewmodel.AuthViewModel
+import com.example.fblogin.viewmodel.GestorDashboardViewModel
 
 private val Vino = Color(0xFF610000)
 private val Carmesi = Color(0xFF9C0720)
@@ -37,7 +41,15 @@ private val GrayLight = Color(0xFFF5F5F5)
 
 // dashboard gestor
 @Composable
-fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
+fun GestorDashboard(nav: NavController, vm: AuthViewModel, gestorDashboardVm: GestorDashboardViewModel) {
+    val ventasHoy by gestorDashboardVm.ventasHoy.collectAsState()
+    val stockCritico by gestorDashboardVm.stockCritico.collectAsState()
+    val pedidosHoy by gestorDashboardVm.pedidosHoy.collectAsState()
+
+    LaunchedEffect(Unit) {
+        gestorDashboardVm.recargar()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -84,17 +96,17 @@ fun GestorDashboard(nav: NavController, vm: AuthViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard(
-                    value = "$3,200",
+                    value = ventasHoy,
                     label = "Ventas hoy",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    value = "3",
+                    value = stockCritico,
                     label = "Stock bajo",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    value = "5",
+                    value = pedidosHoy,
                     label = "Pedidos",
                     modifier = Modifier.weight(1f)
                 )
