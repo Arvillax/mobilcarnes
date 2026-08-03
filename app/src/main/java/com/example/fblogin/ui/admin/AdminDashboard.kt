@@ -104,7 +104,7 @@ fun AdminDashboard(nav: NavController, vm: AuthViewModel, dashboardVm: Dashboard
                 "%.2f".format(ventasDelDia)
             }
             StatCard(
-                number = "$ $ventasFormateada",
+                number = "$${ventasFormateada}",
                 label = "Ventas del día",
                 modifier = Modifier.fillMaxWidth()
             )
