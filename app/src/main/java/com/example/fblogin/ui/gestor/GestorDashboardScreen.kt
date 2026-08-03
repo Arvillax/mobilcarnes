@@ -65,7 +65,7 @@ fun GestorDashboardScreen(
     val inventarioData by dashboardVm.inventarioData.collectAsState()
     val ventasSemanales by dashboardVm.ventasSemanales.collectAsState()
     val topProductos by dashboardVm.productosMasVendidos.collectAsState()
-    val estadoPedidos by dashboardVm.estadoPedidos.collectAsState()
+    val ventasPorProducto by dashboardVm.ventasPorProducto.collectAsState()
 
     Column(
         modifier = Modifier
@@ -144,13 +144,17 @@ fun GestorDashboardScreen(
                     // 3. Productos más vendidos
                     Column {
                         SectionTitle("Productos más vendidos")
-                        VerticalBarChart(topProductos)
+                        VerticalBarChart(
+                            data = topProductos,
+                            title = "Frecuencia de venta",
+                            valuePrefix = ""
+                        )
                     }
 
-                    // 4. Estado de pedidos
+                    // 4. Ventas por producto
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        SectionTitle("Estado de pedidos", Modifier.fillMaxWidth())
-                        DonutChart(estadoPedidos, Modifier.height(200.dp))
+                        SectionTitle("Ventas por producto", Modifier.fillMaxWidth())
+                        DonutChart(ventasPorProducto)
                     }
                 }
             }
