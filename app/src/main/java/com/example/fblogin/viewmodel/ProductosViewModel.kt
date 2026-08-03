@@ -125,13 +125,15 @@ class ProductosViewModel(application: Application) : AndroidViewModel(applicatio
         stock: Int,
         descripcion: String,
         imagenRes: Int? = null,
-        imagenUri: Uri? = null
+        imagenUri: Uri? = null,
+        imagenUriExistente: String? = null
     ) {
         // si hay imagen nueva de galeria, copiar a almacenamiento local
+        // si no, preservar la imagen existente
         val pathLocal = if (imagenUri != null) {
             repo.copiarImagenLocal(context, imagenUri)
         } else {
-            null
+            imagenUriExistente
         }
 
         val producto = Producto(
