@@ -1,27 +1,34 @@
 package com.example.fblogin.ui.cliente
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import com.example.fblogin.ui.theme.Vino
-import com.example.fblogin.ui.theme.Carmesi
-import com.example.fblogin.ui.theme.Crimson
-import com.example.fblogin.ui.theme.Rosa
-import com.example.fblogin.ui.theme.GrayLight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -30,22 +37,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.fblogin.ui.theme.Vino
+import com.example.fblogin.ui.theme.Carmesi
+import com.example.fblogin.ui.theme.Crimson
+import com.example.fblogin.ui.theme.GrayLight
 import com.example.fblogin.viewmodel.AuthViewModel
-
-// modelo pedido
-data class PedidoHistorial(val id: String, val fecha: String, val total: Double, val productos: String, val estado: String)
-
-// datos mock
-val historialMock = listOf(
-    PedidoHistorial("1", "25/07/2026", 450.0, "Costillas x2kg, Pollo x1kg", "Entregado"),
-    PedidoHistorial("2", "20/07/2026", 280.0, "Lomo x2kg, Chuletas x0.5kg", "Entregado"),
-    PedidoHistorial("3", "15/07/2026", 190.0, "Pechuga x3kg, Albóndigas x1kg", "Entregado"),
-    PedidoHistorial("4", "10/07/2026", 520.0, "Punta de Anca x4kg, Costillas x1kg", "Entregado")
-)
+import com.example.fblogin.viewmodel.ClienteHistorialViewModel
 
 // pantalla historial
 @Composable
-fun ClienteHistorialScreen(nav: NavController, vm: AuthViewModel) {
+fun ClienteHistorialScreen(nav: NavController, vm: AuthViewModel, clienteHistorialVm: ClienteHistorialViewModel) {
+    val ventas by clienteHistorialVm.ventas.collectAsState()
+    val totalCompras by clienteHistorialVm.totalCompras.collectAsState()
+    val cargando by clienteHistorialVm.cargando.collectAsState()
+
+    LaunchedEffect(Unit) {
+        clienteHistorialVm.recargar()
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         // header gradiente
         Box(
@@ -72,69 +81,131 @@ fun ClienteHistorialScreen(nav: NavController, vm: AuthViewModel) {
                 Text("← Volver", fontSize = 16.sp)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // boton ver mi actividad
-            androidx.compose.material3.Button(
-                onClick = { nav.navigate("cliente/reportes") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Carmesi)
-            ) {
-                Text(
-                    text = "\uD83D\uDCCA Ver Mi Actividad",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // lista pedidos
-            LazyColumn {
-                items(historialMock) { pedido ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        colors = CardDefaults.cardColors(containerColor = GrayLight),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            if (cargando) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Carmesi)
+                }
+            } else {
+                // KPI total
+                Text(
+                    text = "Total: $${String.format("%,.2f", totalCompras)}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Crimson,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (ventas.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "No tienes compras registradas",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    LazyColumn {
+                        items(ventas) { venta ->
+                            VentaAccordion(venta)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// acordeon de venta
+@Composable
+private fun VentaAccordion(venta: com.example.fblogin.data.Venta) {
+    var expandido by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { expandido = !expandido },
+        colors = CardDefaults.cardColors(containerColor = GrayLight),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // fila principal: fecha + total + flecha
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Pedido #${venta.id.take(8)}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Vino
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = venta.fecha,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "$${String.format("%.2f", venta.total)}",
+                        color = Crimson,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (expandido) "▲" else "▼",
+                        color = Carmesi,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // items desplegables
+            AnimatedVisibility(visible = expandido) {
+                Column(modifier = Modifier.padding(top = 12.dp)) {
+                    HorizontalDivider(color = Color.LightGray)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    venta.items.forEach { item ->
+                        val nombre = item["nombre"] as? String ?: ""
+                        val cantidad = (item["cantidad"] as? Number)?.toDouble() ?: 0.0
+                        val precioKg = (item["precioKg"] as? Number)?.toDouble() ?: 0.0
+                        val subtotal = cantidad * precioKg
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = "Pedido #${pedido.id}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                text = nombre,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.DarkGray,
+                                modifier = Modifier.weight(1f)
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = pedido.fecha,
+                                text = "${String.format("%.1f", cantidad)} kg",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = pedido.productos,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "$${pedido.total}",
-                                color = Crimson,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            // badge estado
-                            Text(
-                                text = pedido.estado,
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier
-                                    .padding(top = 6.dp)
-                                    .background(Rosa, RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                                text = "  $${String.format("%.2f", subtotal)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = Crimson
                             )
                         }
                     }

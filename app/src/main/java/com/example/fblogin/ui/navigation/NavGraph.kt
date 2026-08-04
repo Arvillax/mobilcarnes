@@ -31,6 +31,7 @@ import com.example.fblogin.viewmodel.GestorDashboardViewModel
 import com.example.fblogin.viewmodel.ProductosViewModel
 import com.example.fblogin.viewmodel.ReportesViewModel
 import com.example.fblogin.viewmodel.UsuariosViewModel
+import com.example.fblogin.viewmodel.ClienteHistorialViewModel
 import com.example.fblogin.viewmodel.GestorVentasViewModel
 
 // navegacion principal
@@ -55,6 +56,7 @@ fun NavGraph(viewModel: AuthViewModel) {
     val clienteDashboardViewModel: ClienteDashboardViewModel = viewModel()
     val dashboardViewModel: DashboardViewModel = viewModel()
     val reportesViewModel: ReportesViewModel = viewModel()
+    val clienteHistorialViewModel: ClienteHistorialViewModel = viewModel()
 
     // observar estado
     val logged by viewModel.logged.collectAsState()
@@ -116,7 +118,7 @@ fun NavGraph(viewModel: AuthViewModel) {
             FacturaScreen(navController, carritoViewModel, viewModel, productosViewModel)
         }
         composable("cliente/historial") {
-            ClienteHistorialScreen(navController, viewModel)
+            ClienteHistorialScreen(navController, viewModel, clienteHistorialViewModel)
         }
         composable("cliente/reportes") {
             ClienteDashboardScreen(navController, viewModel, clienteDashboardViewModel)
